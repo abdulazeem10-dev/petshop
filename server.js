@@ -8,6 +8,15 @@ const path = require('path');
 
 const { Product, Order, Admin } = require('./models');
 
+// Customer accounts (used by login.html). Move this into models.js if you prefer.
+const { Schema, model, models } = mongoose;
+const User = models.User || model('User', new Schema({
+    name: { type: String, required: true, trim: true },
+    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    phone: String,
+    passwordHash: { type: String, required: true }
+}, { timestamps: true }));
+
 const app = express();
 
 // ==================================================
@@ -89,6 +98,11 @@ const wrap = (fn) => (req, res) => {
         if (error.name === 'ValidationError' || error.name === 'CastError') {
             return res.status(400).json({ error: error.message });
         }
+        if (error.code === 11000) {
+            return res.status(409).json({
+                error: 'An account with this email already exists'
+            });
+        }
         console.error(error);
         res.status(500).json({ error: 'Something went wrong' });
     });
@@ -108,7 +122,24 @@ const auth = (req, res, next) => {
 
     try {
         const token = (req.headers.authorization || '').replace('Bearer ', '');
-        jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        // Customer tokens must never open admin routes
+        if (decoded.role !== 'admin') throw new Error('Not an admin');
+
+        next();
+    } catch (error) {
+        res.status(401).json({ error: 'Please log in again' });
+    }
+};
+
+// Customer auth
+const userAuth = (req, res, next) => {
+    try {
+        const token = (req.headers.authorization || '').replace('Bearer ', '');
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        if (decoded.role !== 'user') throw new Error('Not a customer');
+        req.userId = decoded.id;
         next();
     } catch (error) {
         res.status(401).json({ error: 'Please log in again' });
@@ -247,6 +278,87 @@ app.post(
 );
 
 // ==================================================
+// CUSTOMER ACCOUNTS
+// ==================================================
+
+const userToken = (user) =>
+    jwt.sign({ id: user._id, role: 'user' }, process.env.JWT_SECRET, {
+        expiresIn: '30d'
+    });
+
+const publicUser = (u) => ({
+    name: u.name,
+    email: u.email,
+    phone: u.phone || ''
+});
+
+app.post(
+    '/api/auth/register',
+    wrap(async (req, res) => {
+        if (!process.env.JWT_SECRET) {
+            return res.status(500).json({ error: 'Server authentication is not configured' });
+        }
+
+        const name = String(req.body.name || '').trim();
+        const email = String(req.body.email || '').trim().toLowerCase();
+        const phone = String(req.body.phone || '').trim();
+        const password = String(req.body.password || '');
+
+        const bad = (message) => res.status(400).json({ error: message });
+
+        if (!name) return bad('Enter your name');
+        if (!/^\S+@\S+\.\S+$/.test(email)) return bad('Enter a valid email address');
+        if (phone && !/^\d{10}$/.test(phone)) return bad('Phone number must be 10 digits');
+        if (password.length < 8) return bad('Password must be at least 8 characters');
+
+        if (await User.findOne({ email })) {
+            return res.status(409).json({ error: 'An account with this email already exists' });
+        }
+
+        const user = await User.create({
+            name,
+            email,
+            phone: phone || undefined,
+            passwordHash: await bcrypt.hash(password, 10)
+        });
+
+        res.status(201).json({ token: userToken(user), user: publicUser(user) });
+    })
+);
+
+app.post(
+    '/api/auth/login',
+    wrap(async (req, res) => {
+        if (!process.env.JWT_SECRET) {
+            return res.status(500).json({ error: 'Server authentication is not configured' });
+        }
+
+        const user = await User.findOne({
+            email: String(req.body.email || '').trim().toLowerCase()
+        });
+
+        if (
+            !user ||
+            !(await bcrypt.compare(String(req.body.password || ''), user.passwordHash))
+        ) {
+            return res.status(401).json({ error: 'Email or password is incorrect' });
+        }
+
+        res.json({ token: userToken(user), user: publicUser(user) });
+    })
+);
+
+app.get(
+    '/api/auth/me',
+    userAuth,
+    wrap(async (req, res) => {
+        const user = await User.findById(req.userId);
+        if (!user) return res.status(401).json({ error: 'Please log in again' });
+        res.json(publicUser(user));
+    })
+);
+
+// ==================================================
 // ADMIN LOGIN
 // ==================================================
 
@@ -272,7 +384,7 @@ app.post(
             });
         }
 
-        const token = jwt.sign({ id: admin._id }, process.env.JWT_SECRET, {
+        const token = jwt.sign({ id: admin._id, role: 'admin' }, process.env.JWT_SECRET, {
             expiresIn: '8h'
         });
 
