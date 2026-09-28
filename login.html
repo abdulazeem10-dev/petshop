@@ -6,23 +6,23 @@
 <title>Log in or sign up | Star Pets</title>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Figtree:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-:root{--ink:#241f4d;--side:#2b2566;--gold:#f0b429;--bg:#f6f4fb;--line:#e4e0f0;--mute:#6b6790;--bad:#d64545}
+:root{--ink:#1c3557;--side:#1c3557;--gold:#2c8c86;--bg:#f7f4ec;--line:#dfe6e4;--mute:#5a7392;--bad:#d64545}
 *{box-sizing:border-box}
 body{margin:0;min-height:100vh;display:grid;grid-template-columns:1fr 1fr;font-family:'Figtree',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
 h1,.brand{font-family:'Fredoka',Georgia,serif}
 :focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .hero{background:var(--side);color:#fff;padding:3rem;display:flex;flex-direction:column;justify-content:space-between}
 .brand{display:flex;align-items:center;gap:.6rem;font-size:1.5rem;color:#fff;text-decoration:none}
-.brand svg{width:34px;height:34px}
+.brand img{width:40px;height:40px;border-radius:9px}
 .hero h2{font-family:'Fredoka',serif;font-size:2.6rem;line-height:1.15;margin:0 0 1rem;max-width:14ch}
-.hero p{color:#cfcaf5;max-width:36ch;line-height:1.6;margin:0}
-.hero ul{list-style:none;padding:0;margin:2rem 0 0;color:#e7e3ff;display:grid;gap:.6rem}
-.hero li::before{content:"★";color:var(--gold);margin-right:.6rem}
+.hero p{color:#d3deec;max-width:36ch;line-height:1.6;margin:0}
+.hero ul{list-style:none;padding:0;margin:2rem 0 0;color:#e6eef7;display:grid;gap:.6rem}
+.hero li::before{content:"★";color:#8fdcd3;margin-right:.6rem}
 .box{display:grid;place-items:center;padding:2rem}
 .card{width:min(400px,100%)}
-.tabs{display:grid;grid-template-columns:1fr 1fr;background:#ebe7f7;border-radius:10px;padding:4px;margin-bottom:1.6rem}
+.tabs{display:grid;grid-template-columns:1fr 1fr;background:#e9efee;border-radius:10px;padding:4px;margin-bottom:1.6rem}
 .tabs button{border:0;background:none;padding:.6rem;border-radius:8px;font:inherit;font-weight:500;color:var(--mute);cursor:pointer}
-.tabs button[aria-selected=true]{background:#fff;color:var(--ink);font-weight:700;box-shadow:0 1px 3px rgba(36,31,77,.15)}
+.tabs button[aria-selected=true]{background:#fff;color:var(--ink);font-weight:700;box-shadow:0 1px 3px rgba(28,53,87,.15)}
 h1{margin:0 0 .3rem;font-size:1.7rem}
 .sub{margin:0 0 1rem;color:var(--mute)}
 label{display:block;font-size:.88rem;color:var(--mute);margin:.9rem 0 .25rem}
@@ -30,7 +30,7 @@ input{width:100%;padding:.7rem .8rem;border:1px solid var(--line);border-radius:
 .pw{position:relative}.pw button{position:absolute;right:.4rem;top:50%;transform:translateY(-50%);border:0;background:none;color:var(--mute);cursor:pointer;font:inherit;padding:.3rem .5rem}
 .hint{font-size:.8rem;color:var(--mute);margin:.3rem 0 0}
 .err{color:var(--bad);min-height:1.3rem;margin:.8rem 0 0;font-size:.92rem}
-.go{width:100%;margin-top:.4rem;background:var(--gold);color:var(--ink);border:0;border-radius:10px;padding:.8rem;font:inherit;font-weight:700;cursor:pointer}
+.go{width:100%;margin-top:.4rem;background:var(--gold);color:#fff;border:0;border-radius:10px;padding:.8rem;font:inherit;font-weight:700;cursor:pointer}
 .go:disabled{opacity:.6;cursor:wait}
 .alt{text-align:center;margin:1.2rem 0 0;font-size:.92rem;color:var(--mute)}
 .alt a{color:var(--ink)}
@@ -41,7 +41,7 @@ input{width:100%;padding:.7rem .8rem;border:1px solid var(--line);border-radius:
 <body>
 <section class="hero">
   <a class="brand" href="/">
-    <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#f0b429" d="M12 1.8l3 6.3 6.9.9-5 4.8 1.3 6.8L12 17.2l-6.2 3.4 1.3-6.8-5-4.8 6.9-.9z"/></svg>
+    <img src="images/image1.jpg" alt="">
     Star Pets
   </a>
   <div>

@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Figtree:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-:root{--ink:#241f4d;--side:#2b2566;--gold:#f0b429;--bg:#f6f4fb;--card:#fff;--line:#e4e0f0;--mute:#6b6790;--ok:#1f9d6b;--bad:#d64545}
+:root{--ink:#1c3557;--side:#1c3557;--gold:#2c8c86;--bg:#f7f4ec;--card:#fff;--line:#dfe6e4;--mute:#5a7392;--ok:#1f9d6b;--bad:#d64545}
 *{box-sizing:border-box}
 body{margin:0;font-family:'Figtree',system-ui,sans-serif;background:var(--bg);color:var(--ink)}
 h1,h2,.brand{font-family:'Fredoka',Georgia,serif}
@@ -16,25 +16,25 @@ button,input,select,textarea{font:inherit}
 button{cursor:pointer}
 :focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .hidden{display:none!important}
-.btn{background:var(--gold);color:var(--ink);border:0;border-radius:8px;padding:.6rem 1rem;font-weight:700}
+.btn{background:var(--gold);color:#fff;border:0;border-radius:8px;padding:.6rem 1rem;font-weight:700}
 .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink);font-weight:500}
 .btn.danger{background:transparent;color:var(--bad);border:1px solid var(--bad);font-weight:500}
 .btn.sm{padding:.3rem .6rem;font-size:.85rem}
 label{display:block;font-size:.85rem;color:var(--mute);margin:.8rem 0 .25rem}
 input,select,textarea{width:100%;padding:.6rem .7rem;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
 /* login */
-#login{min-height:100vh;display:grid;place-items:center;background:var(--side)}
+#login{min-height:100vh;display:grid;place-items:center;background:var(--side)}#login .brand{color:var(--ink)}
 #login form{background:var(--card);padding:2rem;border-radius:14px;width:min(360px,92vw)}
 #login .brand{font-size:1.8rem;margin:0 0 .2rem}
 .err{color:var(--bad);font-size:.9rem;min-height:1.2rem;margin:.6rem 0 0}
 /* app */
 #app{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
 aside{background:var(--side);color:#fff;padding:1.4rem 1rem;display:flex;flex-direction:column;gap:.3rem}
-aside .brand{font-size:1.4rem;margin:0 0 1.2rem;color:var(--gold)}
-aside button.nav{background:none;border:0;color:#cfcaf5;text-align:left;padding:.65rem .8rem;border-radius:8px}
+aside .brand{display:flex;align-items:center;gap:.6rem;font-size:1.4rem;margin:0 0 1.2rem;color:#fff}aside .brand img{width:34px;height:34px;border-radius:8px}
+aside button.nav{background:none;border:0;color:#d3deec;text-align:left;padding:.65rem .8rem;border-radius:8px}
 aside button.nav.on{background:rgba(255,255,255,.12);color:#fff;font-weight:700}
 aside .spacer{flex:1}
-aside small{color:#a9a3dc;word-break:break-all}
+aside small{color:#b9c8dc;word-break:break-all}
 main{padding:1.6rem 2rem;min-width:0}
 main h2{margin:0 0 1.2rem}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:1.5rem}
@@ -54,7 +54,7 @@ td img{width:40px;height:40px;border-radius:8px;object-fit:cover;background:var(
 .empty{color:var(--mute);padding:1.5rem;text-align:center}
 /* modal */
 dialog{border:0;border-radius:14px;padding:1.5rem;width:min(480px,94vw)}
-dialog::backdrop{background:rgba(36,31,77,.5)}
+dialog::backdrop{background:rgba(28,53,87,.5)}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
 .actions{display:flex;justify-content:flex-end;gap:.6rem;margin-top:1.2rem}
 #toast{position:fixed;bottom:1.2rem;right:1.2rem;background:var(--ink);color:#fff;padding:.7rem 1rem;border-radius:8px}
@@ -65,7 +65,7 @@ dialog::backdrop{background:rgba(36,31,77,.5)}
 
 <section id="login">
   <form id="loginForm">
-    <h1 class="brand">Star Pets</h1>
+    <h1 class="brand" style="display:flex;align-items:center;gap:.6rem"><img src="images/image1.jpg" alt="" style="width:40px;height:40px;border-radius:8px">Star Pets</h1>
     <p style="margin:0;color:var(--mute)">Sign in to manage your store</p>
     <label for="email">Email</label><input id="email" type="email" required autocomplete="username">
     <label for="password">Password</label><input id="password" type="password" required autocomplete="current-password">
@@ -77,13 +77,13 @@ dialog::backdrop{background:rgba(36,31,77,.5)}
 
 <div id="app" class="hidden">
   <aside>
-    <div class="brand">Star Pets</div>
+    <div class="brand"><img src="images/image1.jpg" alt="">Star Pets</div>
     <button class="nav on" data-tab="dashboard">Dashboard</button>
     <button class="nav" data-tab="products">Products</button>
     <button class="nav" data-tab="orders">Orders</button>
     <div class="spacer"></div>
     <small id="who"></small>
-    <a class="nav" href="/" style="color:#cfcaf5;text-decoration:none;padding:.65rem .8rem">View store</a>
+    <a class="nav" href="/" style="color:#d3deec;text-decoration:none;padding:.65rem .8rem">View store</a>
     <button class="nav" id="logout">Sign out</button>
   </aside>
   <main>
