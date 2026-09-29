@@ -1,247 +1,2070 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Star Pets Admin</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:wght@600;700&display=swap" rel="stylesheet">
-<style>
-:root{--ink:#241f4d;--side:#2b2566;--gold:#f0b429;--bg:#f6f4fb;--card:#fff;--line:#e4e0f0;--mute:#6b6790;--ok:#1f9d6b;--bad:#d64545}
-*{box-sizing:border-box}
-body{margin:0;font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--ink)}
-h1,h2,.brand{font-family:'Fraunces',Georgia,serif}
-button,input,select,textarea{font:inherit}
-button{cursor:pointer}
-:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
-.hidden{display:none!important}
-.btn{background:var(--gold);color:var(--ink);border:0;border-radius:8px;padding:.6rem 1rem;font-weight:700}
-.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink);font-weight:500}
-.btn.danger{background:transparent;color:var(--bad);border:1px solid var(--bad);font-weight:500}
-.btn.sm{padding:.3rem .6rem;font-size:.85rem}
-label{display:block;font-size:.85rem;color:var(--mute);margin:.8rem 0 .25rem}
-input,select,textarea{width:100%;padding:.6rem .7rem;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
-/* login */
-#login{min-height:100vh;display:grid;place-items:center;background:var(--side)}
-#login form{background:var(--card);padding:2rem;border-radius:14px;width:min(360px,92vw)}
-#login .brand{font-size:1.8rem;margin:0 0 .2rem}
-.err{color:var(--bad);font-size:.9rem;min-height:1.2rem;margin:.6rem 0 0}
-/* app */
-#app{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
-aside{background:var(--side);color:#fff;padding:1.4rem 1rem;display:flex;flex-direction:column;gap:.3rem}
-aside .brand{font-size:1.4rem;margin:0 0 1.2rem;color:var(--gold)}
-aside button.nav{background:none;border:0;color:#cfcaf5;text-align:left;padding:.65rem .8rem;border-radius:8px}
-aside button.nav.on{background:rgba(255,255,255,.12);color:#fff;font-weight:700}
-aside .spacer{flex:1}
-aside small{color:#a9a3dc;word-break:break-all}
-main{padding:1.6rem 2rem;min-width:0}
-main h2{margin:0 0 1.2rem}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:1.5rem}
-.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:1rem 1.2rem}
-.stat b{display:block;font-size:1.8rem;font-family:'Fraunces',serif}
-.stat span{color:var(--mute);font-size:.9rem}
-.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:1rem 1.2rem;overflow-x:auto}
-table{width:100%;border-collapse:collapse;min-width:560px}
-th{text-align:left;font-size:.85rem;color:var(--mute);font-weight:500;padding:.5rem .6rem;border-bottom:1px solid var(--line)}
-td{padding:.65rem .6rem;border-bottom:1px solid var(--line);vertical-align:middle}
-tr:last-child td{border-bottom:0}
-td img{width:40px;height:40px;border-radius:8px;object-fit:cover;background:var(--bg);vertical-align:middle;margin-right:.6rem}
-.tag{display:inline-block;padding:.15rem .55rem;border-radius:99px;font-size:.8rem;background:var(--bg)}
-.tag.off{background:#fde8e8;color:var(--bad)}
-.low{color:var(--bad);font-weight:700}
-.bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;gap:1rem;flex-wrap:wrap}
-.empty{color:var(--mute);padding:1.5rem;text-align:center}
-/* modal */
-dialog{border:0;border-radius:14px;padding:1.5rem;width:min(480px,94vw)}
-dialog::backdrop{background:rgba(36,31,77,.5)}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
-.actions{display:flex;justify-content:flex-end;gap:.6rem;margin-top:1.2rem}
-#toast{position:fixed;bottom:1.2rem;right:1.2rem;background:var(--ink);color:#fff;padding:.7rem 1rem;border-radius:8px}
-@media(max-width:760px){#app{grid-template-columns:1fr}aside{flex-direction:row;flex-wrap:wrap;align-items:center}aside .brand{margin:0 1rem 0 0}aside .spacer,aside small{display:none}main{padding:1rem}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Star Pets Admin</title>
+  <meta name="robots" content="noindex">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Figtree:wght@400;500;700&display=swap"
+    rel="stylesheet">
+
+  <style>
+    :root {
+      --ink: #1c3557;
+      --side: #1c3557;
+      --teal: #2c8c86;
+      --teal-dark: #247872;
+      --bg: #f7f4ec;
+      --card: #ffffff;
+      --line: #dfe6e4;
+      --mute: #5a7392;
+      --ok: #1f9d6b;
+      --bad: #d64545;
+      --warning-bg: #fff4d6;
+      --warning-border: #f0c36d;
+      --warning-text: #8a5a00;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Figtree', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+    }
+
+    h1,
+    h2,
+    .brand {
+      font-family: 'Fredoka', Georgia, serif;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    :focus-visible {
+      outline: 3px solid var(--teal);
+      outline-offset: 2px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* =========================
+       BUTTONS
+       ========================= */
+
+    .btn {
+      background: var(--teal);
+      color: #fff;
+      border: 0;
+      border-radius: 8px;
+      padding: .6rem 1rem;
+      font-weight: 700;
+    }
+
+    .btn:hover {
+      background: var(--teal-dark);
+    }
+
+    .btn.ghost {
+      background: transparent;
+      border: 1px solid var(--line);
+      color: var(--ink);
+      font-weight: 500;
+    }
+
+    .btn.ghost:hover {
+      background: #f1f5f4;
+    }
+
+    .btn.danger {
+      background: transparent;
+      color: var(--bad);
+      border: 1px solid var(--bad);
+      font-weight: 500;
+    }
+
+    .btn.danger:hover {
+      background: #fff0f0;
+    }
+
+    .btn.sm {
+      padding: .3rem .6rem;
+      font-size: .85rem;
+    }
+
+    /* =========================
+       FORMS
+       ========================= */
+
+    label {
+      display: block;
+      font-size: .85rem;
+      color: var(--mute);
+      margin: .8rem 0 .25rem;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: .6rem .7rem;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    /* =========================
+       LOGIN
+       ========================= */
+
+    #login {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: var(--side);
+    }
+
+    #login form {
+      background: var(--card);
+      padding: 2rem;
+      border-radius: 14px;
+      width: min(360px, 92vw);
+      box-shadow: 0 15px 40px rgba(28, 53, 87, .25);
+    }
+
+    #login .brand {
+      font-size: 1.8rem;
+      margin: 0 0 .2rem;
+      color: var(--ink);
+    }
+
+    .err {
+      color: var(--bad);
+      font-size: .9rem;
+      min-height: 1.2rem;
+      margin: .6rem 0 0;
+    }
+
+    /* =========================
+       MAIN APP
+       ========================= */
+
+    #app {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      min-height: 100vh;
+    }
+
+    /* =========================
+       SIDEBAR
+       ========================= */
+
+    aside {
+      background: var(--side);
+      color: #fff;
+      padding: 1.4rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: .3rem;
+    }
+
+    aside .brand {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      font-size: 1.4rem;
+      margin: 0 0 1.2rem;
+      color: #fff;
+    }
+
+    aside .brand img {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+
+    aside button.nav {
+      background: none;
+      border: 0;
+      color: #d3deec;
+      text-align: left;
+      padding: .65rem .8rem;
+      border-radius: 8px;
+    }
+
+    aside button.nav:hover {
+      background: rgba(255, 255, 255, .08);
+      color: #fff;
+    }
+
+    aside button.nav.on {
+      background: rgba(255, 255, 255, .12);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    aside .spacer {
+      flex: 1;
+    }
+
+    aside small {
+      color: #b9c8dc;
+      word-break: break-all;
+    }
+
+    .store-link {
+      color: #d3deec;
+      text-decoration: none;
+      padding: .65rem .8rem;
+      border-radius: 8px;
+    }
+
+    .store-link:hover {
+      background: rgba(255, 255, 255, .08);
+      color: #fff;
+    }
+
+    /* =========================
+       MAIN CONTENT
+       ========================= */
+
+    main {
+      padding: 1.6rem 2rem;
+      min-width: 0;
+    }
+
+    main h2 {
+      margin: 0 0 1.2rem;
+    }
+
+    /* =========================
+       DASHBOARD STATS
+       ========================= */
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 1rem 1.2rem;
+    }
+
+    .stat b {
+      display: block;
+      font-size: 1.8rem;
+      font-family: 'Fredoka', serif;
+    }
+
+    .stat span {
+      color: var(--mute);
+      font-size: .9rem;
+    }
+
+    /* =========================
+       LOW STOCK WARNING
+       ========================= */
+
+    .stock-warning {
+      background: var(--warning-bg);
+      border: 1px solid var(--warning-border);
+      border-radius: 12px;
+      padding: 1rem 1.2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stock-warning-header {
+      display: flex;
+      align-items: center;
+      gap: .7rem;
+      margin-bottom: .6rem;
+    }
+
+    .stock-warning-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #f0b429;
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .stock-warning-title {
+      font-weight: 700;
+      color: var(--warning-text);
+      font-size: 1rem;
+    }
+
+    .stock-warning-subtitle {
+      color: #9a7440;
+      font-size: .85rem;
+      margin-top: .15rem;
+    }
+
+    .stock-list {
+      background: #fffaf0;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .stock-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      padding: .65rem .8rem;
+      border-bottom: 1px solid #f1dfb5;
+    }
+
+    .stock-item:last-child {
+      border-bottom: 0;
+    }
+
+    .stock-name {
+      color: var(--ink);
+    }
+
+    .stock-count {
+      color: var(--bad);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .stock-ok {
+      background: #eef8f4;
+      border: 1px solid #cce9dc;
+      color: var(--ok);
+      border-radius: 12px;
+      padding: .9rem 1rem;
+    }
+
+    /* =========================
+       PANELS
+       ========================= */
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 1rem 1.2rem;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 560px;
+    }
+
+    th {
+      text-align: left;
+      font-size: .85rem;
+      color: var(--mute);
+      font-weight: 500;
+      padding: .5rem .6rem;
+      border-bottom: 1px solid var(--line);
+    }
+
+    td {
+      padding: .65rem .6rem;
+      border-bottom: 1px solid var(--line);
+      vertical-align: middle;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    td img {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: var(--bg);
+      vertical-align: middle;
+      margin-right: .6rem;
+    }
+
+    .low {
+      color: var(--bad);
+      font-weight: 700;
+    }
+
+    .bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .empty {
+      color: var(--mute);
+      padding: 1.5rem;
+      text-align: center;
+    }
+
+    /* =========================
+       MODAL
+       ========================= */
+
+    dialog {
+      border: 0;
+      border-radius: 14px;
+      padding: 1.5rem;
+      width: min(480px, 94vw);
+      box-shadow: 0 20px 60px rgba(28, 53, 87, .25);
+    }
+
+    dialog::backdrop {
+      background: rgba(28, 53, 87, .5);
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .8rem;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: .6rem;
+      margin-top: 1.2rem;
+    }
+
+    /* =========================
+       TOAST
+       ========================= */
+
+    #toast {
+      position: fixed;
+      bottom: 1.2rem;
+      right: 1.2rem;
+      background: var(--ink);
+      color: #fff;
+      padding: .7rem 1rem;
+      border-radius: 8px;
+      z-index: 1000;
+    }
+
+    /* =========================
+       MOBILE
+       ========================= */
+
+    @media (max-width: 760px) {
+
+      #app {
+        grid-template-columns: 1fr;
+      }
+
+      aside {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      aside .brand {
+        margin: 0 1rem 0 0;
+      }
+
+      aside .spacer,
+      aside small {
+        display: none;
+      }
+
+      main {
+        padding: 1rem;
+      }
+
+      .row {
+        grid-template-columns: 1fr;
+      }
+
+      .stock-item {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: .25rem;
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-<section id="login">
-  <form id="loginForm">
-    <h1 class="brand">Star Pets</h1>
-    <p style="margin:0;color:var(--mute)">Sign in to manage your store</p>
-    <label for="email">Email</label><input id="email" type="email" required autocomplete="username">
-    <label for="password">Password</label><input id="password" type="password" required autocomplete="current-password">
-    <p class="err" id="loginErr"></p>
-    <button class="btn" style="width:100%">Sign in</button>
-  </form>
-</section>
+  <!-- =========================
+       LOGIN
+       ========================= -->
 
-<div id="app" class="hidden">
-  <aside>
-    <div class="brand">Star Pets</div>
-    <button class="nav on" data-tab="dashboard">Dashboard</button>
-    <button class="nav" data-tab="products">Products</button>
-    <button class="nav" data-tab="orders">Orders</button>
-    <div class="spacer"></div>
-    <small id="who"></small>
-    <button class="nav" id="logout">Sign out</button>
-  </aside>
-  <main>
-    <div id="dashboard">
-      <h2>Dashboard</h2>
-      <div class="stats" id="stats"></div>
-      <div class="panel"><b>Low stock (5 or fewer)</b><div id="low"></div></div>
-    </div>
-    <div id="products" class="hidden">
-      <div class="bar"><h2 style="margin:0">Products</h2><button class="btn" id="addProduct">Add product</button></div>
-      <div class="panel"><table><thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th></th></tr></thead><tbody id="productRows"></tbody></table></div>
-    </div>
-    <div id="orders" class="hidden">
-      <h2>Orders</h2>
-      <div class="panel"><table><thead><tr><th>Date</th><th>Customer</th><th>Items</th><th>Total</th><th>Payment</th><th>Status</th></tr></thead><tbody id="orderRows"></tbody></table></div>
-    </div>
-  </main>
-</div>
+  <section id="login">
 
-<dialog id="productDialog">
-  <form id="productForm">
-    <h2 id="dialogTitle" style="margin:0">Add product</h2>
-    <label for="pName">Name</label><input id="pName" required>
-    <div class="row">
-      <div><label for="pCat">Category</label><select id="pCat"><option>Food</option><option>Accessories</option></select></div>
-      <div><label for="pPrice">Price (₹)</label><input id="pPrice" type="number" min="0" step="0.01" required></div>
-    </div>
-    <div>
-      <div><label for="pStock">Stock</label><input id="pStock" type="number" min="0" value="0" required></div>
-    </div>
-    <label for="pImage">Image URL</label><input id="pImage" placeholder="/images/dog-food.jpg">
-    <label for="pDesc">Description</label><textarea id="pDesc" rows="3"></textarea>
-    <p class="err" id="productErr"></p>
-    <div class="actions"><button type="button" class="btn ghost" id="cancelProduct">Cancel</button><button class="btn">Save product</button></div>
-  </form>
-</dialog>
-<div id="toast" class="hidden" role="status"></div>
+    <form id="loginForm">
 
-<script>
-const API = '/api/admin';
-const STATUSES = ['pending','paid','shipped','delivered','cancelled'];
-const $ = id => document.getElementById(id);
-const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const money = n => '₹' + Number(n || 0).toLocaleString('en-IN');
-let token = localStorage.getItem('sp_token');
-let products = [];
-let editingId = null;
+      <h1
+        class="brand"
+        style="display:flex;align-items:center;gap:.6rem"
+      >
+        <img
+          src="../public/images/image1.jpg"
+          alt=""
+          style="width:40px;height:40px;border-radius:8px;object-fit:cover"
+        >
 
-async function api(path, method = 'GET', body) {
-  const res = await fetch(API + path, {
-    method,
-    headers: { 'Content-Type': 'application/json', ...(token && { Authorization: 'Bearer ' + token }) },
-    body: body && JSON.stringify(body),
-  });
-  const data = await res.json().catch(() => ({}));
-  if (res.status === 401 && path !== '/login') { logout(); throw new Error(data.error); }
-  if (!res.ok) throw new Error(data.error || 'Something went wrong');
-  return data;
-}
-function toast(msg) {
-  const t = $('toast'); t.textContent = msg; t.classList.remove('hidden');
-  clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.add('hidden'), 2500);
-}
+        Star Pets
+      </h1>
 
-/* auth */
-$('loginForm').onsubmit = async e => {
-  e.preventDefault(); $('loginErr').textContent = '';
-  try {
-    const d = await api('/login', 'POST', { email: $('email').value, password: $('password').value });
-    token = d.token; localStorage.setItem('sp_token', token); localStorage.setItem('sp_email', d.email);
-    start();
-  } catch (err) { $('loginErr').textContent = err.message; }
-};
-function logout() {
-  token = null; localStorage.removeItem('sp_token');
-  $('app').classList.add('hidden'); $('login').classList.remove('hidden');
-}
-$('logout').onclick = logout;
+      <p style="margin:0;color:var(--mute)">
+        Sign in to manage your store
+      </p>
 
-/* tabs */
-function show(tab) {
-  ['dashboard','products','orders'].forEach(t => $(t).classList.toggle('hidden', t !== tab));
-  document.querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
-  ({ dashboard: loadStats, products: loadProducts, orders: loadOrders })[tab]();
-}
-document.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => show(b.dataset.tab));
+      <label for="email">
+        Email
+      </label>
 
-/* dashboard */
-async function loadStats() {
-  const s = await api('/stats');
-  $('stats').innerHTML = [
-    ['Revenue', money(s.revenue)], ['Orders', s.orders], ['Pending orders', s.pending], ['Products', s.products],
-  ].map(([l, v]) => `<div class="stat"><b>${esc(v)}</b><span>${l}</span></div>`).join('');
-  $('low').innerHTML = s.lowStock.length
-    ? `<table>${s.lowStock.map(p => `<tr><td>${esc(p.name)}</td><td class="low">${p.stock} left</td></tr>`).join('')}</table>`
-    : '<div class="empty">All products are well stocked.</div>';
-}
+      <input
+        id="email"
+        type="email"
+        required
+        autocomplete="username"
+      >
 
-/* products */
-async function loadProducts() {
-  products = await api('/products');
-  $('productRows').innerHTML = products.length ? products.map(p => `
-    <tr><td>${p.image ? `<img src="${esc(p.image)}" alt="">` : ''}${esc(p.name)}</td>
-    <td>${esc(p.category)}</td><td>${money(p.price)}</td>
-    <td class="${p.stock <= 5 ? 'low' : ''}">${p.stock}</td>
-    <td style="white-space:nowrap"><button class="btn ghost sm" data-edit="${p._id}">Edit</button>
-    <button class="btn danger sm" data-del="${p._id}">Delete</button></td></tr>`).join('')
-    : '<tr><td colspan="5" class="empty">No products yet. Add your first one.</td></tr>';
-}
-$('productRows').onclick = async e => {
-  const { edit, del } = e.target.dataset;
-  if (edit) openProduct(products.find(p => p._id === edit));
-  if (del && confirm('Delete this product? This cannot be undone.')) {
-    await api('/products/' + del, 'DELETE'); toast('Product deleted'); loadProducts();
-  }
-};
-function openProduct(p) {
-  editingId = p?._id || null;
-  $('dialogTitle').textContent = p ? 'Edit product' : 'Add product';
-  $('pName').value = p?.name || ''; $('pCat').value = p?.category || 'Food';
-  $('pPrice').value = p?.price ?? ''; $('pStock').value = p?.stock ?? 0;
-  $('pImage').value = p?.image || '';
-  $('pDesc').value = p?.description || ''; $('productErr').textContent = '';
-  $('productDialog').showModal();
-}
-$('addProduct').onclick = () => openProduct();
-$('cancelProduct').onclick = () => $('productDialog').close();
-$('productForm').onsubmit = async e => {
-  e.preventDefault();
-  const body = { name: $('pName').value, category: $('pCat').value, price: +$('pPrice').value,
-    stock: +$('pStock').value, image: $('pImage').value, description: $('pDesc').value };
-  try {
-    await (editingId ? api('/products/' + editingId, 'PUT', body) : api('/products', 'POST', body));
-    $('productDialog').close(); toast('Product saved'); loadProducts();
-  } catch (err) { $('productErr').textContent = err.message; }
-};
+      <label for="password">
+        Password
+      </label>
 
-/* orders */
-async function loadOrders() {
-  const orders = await api('/orders');
-  $('orderRows').innerHTML = orders.length ? orders.map(o => `
-    <tr><td>${new Date(o.createdAt).toLocaleDateString('en-IN')}</td>
-    <td>${esc(o.customer?.name)}<br><small style="color:var(--mute)">${esc(o.customer?.phone)}<br>${esc(o.customer?.address)}</small></td>
-    <td>${(o.items || []).map(i => `${esc(i.name)} × ${i.qty}`).join('<br>')}</td>
-    <td>${money(o.total)}</td>
-    <td>${esc(o.paymentMethod)}<br><small style="color:var(--mute)">${esc(o.paymentStatus)}</small></td>
-    <td><select data-order="${o._id}" aria-label="Order status">${STATUSES.map(s => `<option ${s === o.status ? 'selected' : ''}>${s}</option>`).join('')}</select></td></tr>`).join('')
-    : '<tr><td colspan="6" class="empty">No orders yet. They will show up here once customers check out.</td></tr>';
-}
-$('orderRows').onchange = async e => {
-  if (!e.target.dataset.order) return;
-  await api('/orders/' + e.target.dataset.order, 'PATCH', { status: e.target.value });
-  toast('Order updated');
-};
+      <input
+        id="password"
+        type="password"
+        required
+        autocomplete="current-password"
+      >
 
-function start() {
-  $('login').classList.add('hidden'); $('app').classList.remove('hidden');
-  $('who').textContent = localStorage.getItem('sp_email') || '';
-  show('dashboard');
-}
-if (token) start();
-</script>
+      <p
+        class="err"
+        id="loginErr"
+      ></p>
+
+      <button
+        class="btn"
+        style="width:100%"
+      >
+        Sign in
+      </button>
+
+      <p style="text-align:center;margin:1rem 0 0">
+        <a
+          href="../public/"
+          style="color:var(--mute)"
+        >
+          Back to store
+        </a>
+      </p>
+
+    </form>
+
+  </section>
+
+
+  <!-- =========================
+       ADMIN APP
+       ========================= -->
+
+  <div id="app" class="hidden">
+
+    <aside>
+
+      <div class="brand">
+
+        <img
+          src="../public/images/image1.jpg"
+          alt=""
+        >
+
+        Star Pets
+
+      </div>
+
+      <button
+        class="nav on"
+        data-tab="dashboard"
+      >
+        Dashboard
+      </button>
+
+      <button
+        class="nav"
+        data-tab="products"
+      >
+        Products
+      </button>
+
+      <button
+        class="nav"
+        data-tab="orders"
+      >
+        Orders
+      </button>
+
+      <div class="spacer"></div>
+
+      <small id="who"></small>
+
+      <a
+        class="store-link"
+        href="../public/"
+      >
+        View store
+      </a>
+
+      <button
+        class="nav"
+        id="logout"
+      >
+        Sign out
+      </button>
+
+    </aside>
+
+
+    <main>
+
+      <!-- =========================
+           DASHBOARD
+           ========================= -->
+
+      <div id="dashboard">
+
+        <h2>
+          Dashboard
+        </h2>
+
+        <div
+          class="stats"
+          id="stats"
+        ></div>
+
+
+        <!-- LOW STOCK WARNING -->
+
+        <div
+          id="stockWarning"
+          class="stock-warning hidden"
+        >
+
+          <div class="stock-warning-header">
+
+            <div class="stock-warning-icon">
+              !
+            </div>
+
+            <div>
+
+              <div class="stock-warning-title">
+                Low Stock Alert
+              </div>
+
+              <div
+                class="stock-warning-subtitle"
+                id="stockWarningText"
+              >
+              </div>
+
+            </div>
+
+          </div>
+
+          <div
+            class="stock-list"
+            id="low"
+          ></div>
+
+        </div>
+
+
+        <!-- ALL STOCK OK -->
+
+        <div
+          id="stockOk"
+          class="stock-ok hidden"
+        >
+          ✓ All products have more than 5 items in stock.
+        </div>
+
+      </div>
+
+
+      <!-- =========================
+           PRODUCTS
+           ========================= -->
+
+      <div
+        id="products"
+        class="hidden"
+      >
+
+        <div class="bar">
+
+          <h2 style="margin:0">
+            Products
+          </h2>
+
+          <button
+            class="btn"
+            id="addProduct"
+          >
+            Add product
+          </button>
+
+        </div>
+
+        <div class="panel">
+
+          <table>
+
+            <thead>
+
+              <tr>
+                <th>Product</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th></th>
+              </tr>
+
+            </thead>
+
+            <tbody id="productRows"></tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+
+      <!-- =========================
+           ORDERS
+           ========================= -->
+
+      <div
+        id="orders"
+        class="hidden"
+      >
+
+        <h2>
+          Orders
+        </h2>
+
+        <div class="panel">
+
+          <table>
+
+            <thead>
+
+              <tr>
+                <th>Date</th>
+                <th>Customer</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Payment</th>
+                <th>Status</th>
+              </tr>
+
+            </thead>
+
+            <tbody id="orderRows"></tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </main>
+
+  </div>
+
+
+  <!-- =========================
+       PRODUCT MODAL
+       ========================= -->
+
+  <dialog id="productDialog">
+
+    <form id="productForm">
+
+      <h2
+        id="dialogTitle"
+        style="margin:0"
+      >
+        Add product
+      </h2>
+
+      <label for="pName">
+        Name
+      </label>
+
+      <input
+        id="pName"
+        required
+      >
+
+
+      <div class="row">
+
+        <div>
+
+          <label for="pCat">
+            Category
+          </label>
+
+          <select id="pCat">
+
+            <option value="Dog">
+              Dog Food
+            </option>
+
+            <option value="Cat">
+              Cat Food
+            </option>
+
+            <option value="Accessories">
+              Accessories
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div>
+
+          <label for="pPrice">
+            Price (₹)
+          </label>
+
+          <input
+            id="pPrice"
+            type="number"
+            min="0"
+            step="0.01"
+            required
+          >
+
+        </div>
+
+      </div>
+
+
+      <label for="pStock">
+        Stock
+      </label>
+
+      <input
+        id="pStock"
+        type="number"
+        min="0"
+        value="0"
+        required
+      >
+
+
+      <label for="pImage">
+        Image URL
+      </label>
+
+      <input
+        id="pImage"
+        placeholder="/images/dog-food.jpg"
+      >
+
+
+      <label for="pDesc">
+        Description
+      </label>
+
+      <textarea
+        id="pDesc"
+        rows="3"
+      ></textarea>
+
+
+      <p
+        class="err"
+        id="productErr"
+      ></p>
+
+
+      <div class="actions">
+
+        <button
+          type="button"
+          class="btn ghost"
+          id="cancelProduct"
+        >
+          Cancel
+        </button>
+
+        <button class="btn">
+          Save product
+        </button>
+
+      </div>
+
+    </form>
+
+  </dialog>
+
+
+  <div
+    id="toast"
+    class="hidden"
+    role="status"
+  ></div>
+
+
+  <script>
+
+    /* =========================
+       API
+       ========================= */
+
+    const API =
+      'http://44.205.21.20:3000/api/admin';
+
+
+    const STATUSES = [
+      'placed',
+      'packed',
+      'shipped',
+      'delivered',
+      'cancelled'
+    ];
+
+
+    /* =========================
+       HELPERS
+       ========================= */
+
+    const $ = id =>
+      document.getElementById(id);
+
+
+    const esc = s =>
+      String(s ?? '').replace(
+        /[&<>"']/g,
+        c =>
+          ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+          }[c])
+      );
+
+
+    const money = n =>
+      '₹' +
+      Number(n || 0)
+        .toLocaleString('en-IN');
+
+
+    /* =========================
+       VARIABLES
+       ========================= */
+
+    let token =
+      localStorage.getItem(
+        'sp_token'
+      );
+
+    let products = [];
+
+    let editingId = null;
+
+
+    /* =========================
+       API FUNCTION
+       ========================= */
+
+    async function api(
+      path,
+      method = 'GET',
+      body
+    ) {
+
+      const options = {
+        method,
+        headers: {
+          'Content-Type':
+            'application/json'
+        }
+      };
+
+
+      if (token) {
+
+        options.headers.Authorization =
+          'Bearer ' + token;
+
+      }
+
+
+      if (body) {
+
+        options.body =
+          JSON.stringify(body);
+
+      }
+
+
+      const res =
+        await fetch(
+          API + path,
+          options
+        );
+
+
+      const data =
+        await res
+          .json()
+          .catch(() => ({}));
+
+
+      if (
+        res.status === 401 &&
+        path !== '/login'
+      ) {
+
+        logout();
+
+        throw new Error(
+          data.error ||
+          'Session expired'
+        );
+
+      }
+
+
+      if (!res.ok) {
+
+        throw new Error(
+          data.error ||
+          'Something went wrong'
+        );
+
+      }
+
+
+      return data;
+
+    }
+
+
+    /* =========================
+       TOAST
+       ========================= */
+
+    function toast(msg) {
+
+      const t =
+        $('toast');
+
+      t.textContent =
+        msg;
+
+      t.classList.remove(
+        'hidden'
+      );
+
+      clearTimeout(
+        toast.timer
+      );
+
+      toast.timer =
+        setTimeout(
+          () =>
+            t.classList.add(
+              'hidden'
+            ),
+          2500
+        );
+
+    }
+
+
+    /* =========================
+       LOGIN
+       ========================= */
+
+    $('loginForm').onsubmit =
+      async e => {
+
+        e.preventDefault();
+
+        $('loginErr').textContent =
+          '';
+
+
+        try {
+
+          const d =
+            await api(
+              '/login',
+              'POST',
+              {
+                email:
+                  $('email').value,
+
+                password:
+                  $('password').value
+              }
+            );
+
+
+          token =
+            d.token;
+
+
+          localStorage.setItem(
+            'sp_token',
+            token
+          );
+
+
+          localStorage.setItem(
+            'sp_email',
+            d.email ||
+              $('email').value
+          );
+
+
+          start();
+
+
+        } catch (err) {
+
+          $('loginErr')
+            .textContent =
+            err.message;
+
+        }
+
+      };
+
+
+    /* =========================
+       LOGOUT
+       ========================= */
+
+    function logout() {
+
+      token = null;
+
+      localStorage.removeItem(
+        'sp_token'
+      );
+
+      localStorage.removeItem(
+        'sp_email'
+      );
+
+      $('app')
+        .classList.add(
+          'hidden'
+        );
+
+      $('login')
+        .classList.remove(
+          'hidden'
+        );
+
+    }
+
+
+    $('logout').onclick =
+      logout;
+
+
+    /* =========================
+       TABS
+       ========================= */
+
+    function show(tab) {
+
+      [
+        'dashboard',
+        'products',
+        'orders'
+      ].forEach(t => {
+
+        $(t).classList.toggle(
+          'hidden',
+          t !== tab
+        );
+
+      });
+
+
+      document
+        .querySelectorAll(
+          '[data-tab]'
+        )
+        .forEach(button => {
+
+          button.classList.toggle(
+            'on',
+            button.dataset.tab ===
+              tab
+          );
+
+        });
+
+
+      if (tab === 'dashboard') {
+        loadStats();
+      }
+
+      if (tab === 'products') {
+        loadProducts();
+      }
+
+      if (tab === 'orders') {
+        loadOrders();
+      }
+
+    }
+
+
+    document
+      .querySelectorAll(
+        '[data-tab]'
+      )
+      .forEach(button => {
+
+        button.onclick =
+          () =>
+            show(
+              button.dataset.tab
+            );
+
+      });
+
+
+    /* =========================
+       DASHBOARD
+       ========================= */
+
+    async function loadStats() {
+
+      try {
+
+        const s =
+          await api('/stats');
+
+
+        $('stats').innerHTML = [
+
+          [
+            'Revenue',
+            money(s.revenue)
+          ],
+
+          [
+            'Orders',
+            s.orders
+          ],
+
+          [
+            'Pending orders',
+            s.pending
+          ],
+
+          [
+            'Products',
+            s.products
+          ]
+
+        ]
+
+          .map(
+            ([label, value]) =>
+              `
+              <div class="stat">
+
+                <b>
+                  ${esc(value)}
+                </b>
+
+                <span>
+                  ${label}
+                </span>
+
+              </div>
+              `
+          )
+
+          .join('');
+
+
+        /*
+          LOW STOCK
+          Backend returns products
+          with stock <= 5.
+        */
+
+        const lowStock =
+          s.lowStock || [];
+
+
+        if (
+          lowStock.length > 0
+        ) {
+
+          $('stockWarning')
+            .classList.remove(
+              'hidden'
+            );
+
+          $('stockOk')
+            .classList.add(
+              'hidden'
+            );
+
+
+          $('stockWarningText')
+            .textContent =
+            `${lowStock.length} product${
+              lowStock.length === 1
+                ? ''
+                : 's'
+            } need${
+              lowStock.length === 1
+                ? 's'
+                : ''
+            } restocking.`;
+
+
+          $('low').innerHTML =
+            lowStock
+              .map(
+                product =>
+                  `
+                  <div class="stock-item">
+
+                    <div class="stock-name">
+                      ${esc(
+                        product.name
+                      )}
+                    </div>
+
+                    <div class="stock-count">
+                      ${product.stock}
+                      ${
+                        product.stock === 1
+                          ? 'left'
+                          : 'left'
+                      }
+                    </div>
+
+                  </div>
+                  `
+              )
+              .join('');
+
+        } else {
+
+          $('stockWarning')
+            .classList.add(
+              'hidden'
+            );
+
+          $('stockOk')
+            .classList.remove(
+              'hidden'
+            );
+
+        }
+
+      } catch (err) {
+
+        console.error(
+          'Dashboard error:',
+          err
+        );
+
+        toast(
+          err.message
+        );
+
+      }
+
+    }
+
+
+    /* =========================
+       PRODUCTS
+       ========================= */
+
+    async function loadProducts() {
+
+      try {
+
+        products =
+          await api(
+            '/products'
+          );
+
+
+        $('productRows')
+          .innerHTML =
+          products.length
+
+            ? products
+                .map(
+                  product =>
+                    `
+                    <tr>
+
+                      <td>
+
+                        ${
+                          product.image
+                            ? `
+                              <img
+                                src="${esc(
+                                  product.image
+                                )}"
+                                alt=""
+                              >
+                              `
+                            : ''
+                        }
+
+                        ${esc(
+                          product.name
+                        )}
+
+                      </td>
+
+
+                      <td>
+
+                        ${
+                          product.category ===
+                          'Dog'
+                            ? 'Dog Food'
+                            : product.category ===
+                              'Cat'
+                            ? 'Cat Food'
+                            : 'Accessories'
+                        }
+
+                      </td>
+
+
+                      <td>
+                        ${money(
+                          product.price
+                        )}
+                      </td>
+
+
+                      <td
+                        class="${
+                          product.stock <= 5
+                            ? 'low'
+                            : ''
+                        }"
+                      >
+                        ${product.stock}
+                      </td>
+
+
+                      <td
+                        style="white-space:nowrap"
+                      >
+
+                        <button
+                          class="btn ghost sm"
+                          data-edit="${product.id}"
+                        >
+                          Edit
+                        </button>
+
+
+                        <button
+                          class="btn danger sm"
+                          data-del="${product.id}"
+                        >
+                          Delete
+                        </button>
+
+                      </td>
+
+                    </tr>
+                    `
+                )
+                .join('')
+
+            : `
+              <tr>
+
+                <td
+                  colspan="5"
+                  class="empty"
+                >
+                  No products yet.
+                  Add your first one.
+                </td>
+
+              </tr>
+              `;
+
+      } catch (err) {
+
+        console.error(
+          'Products error:',
+          err
+        );
+
+        toast(
+          err.message
+        );
+
+      }
+
+    }
+
+
+    /* =========================
+       EDIT / DELETE
+       ========================= */
+
+    $('productRows').onclick =
+      async e => {
+
+        const {
+          edit,
+          del
+        } =
+          e.target.dataset;
+
+
+        if (edit) {
+
+          const product =
+            products.find(
+              p =>
+                String(p.id) ===
+                String(edit)
+            );
+
+
+          if (product) {
+
+            openProduct(
+              product
+            );
+
+          }
+
+        }
+
+
+        if (
+          del &&
+          confirm(
+            'Delete this product? This cannot be undone.'
+          )
+        ) {
+
+          try {
+
+            await api(
+              '/products/' +
+                del,
+              'DELETE'
+            );
+
+
+            toast(
+              'Product deleted'
+            );
+
+
+            loadProducts();
+
+            loadStats();
+
+          } catch (err) {
+
+            toast(
+              err.message
+            );
+
+          }
+
+        }
+
+      };
+
+
+    /* =========================
+       OPEN PRODUCT
+       ========================= */
+
+    function openProduct(
+      product
+    ) {
+
+      editingId =
+        product?.id ||
+        null;
+
+
+      $('dialogTitle')
+        .textContent =
+        product
+          ? 'Edit product'
+          : 'Add product';
+
+
+      $('pName').value =
+        product?.name ||
+        '';
+
+
+      $('pCat').value =
+        product?.category ||
+        'Dog';
+
+
+      $('pPrice').value =
+        product?.price ??
+        '';
+
+
+      $('pStock').value =
+        product?.stock ??
+        0;
+
+
+      $('pImage').value =
+        product?.image ||
+        '';
+
+
+      $('pDesc').value =
+        product?.description ||
+        '';
+
+
+      $('productErr')
+        .textContent =
+        '';
+
+
+      $('productDialog')
+        .showModal();
+
+    }
+
+
+    $('addProduct').onclick =
+      () =>
+        openProduct();
+
+
+    $('cancelProduct').onclick =
+      () =>
+        $('productDialog')
+          .close();
+
+
+    /* =========================
+       SAVE PRODUCT
+       ========================= */
+
+    $('productForm').onsubmit =
+      async e => {
+
+        e.preventDefault();
+
+
+        const body = {
+
+          name:
+            $('pName').value,
+
+          category:
+            $('pCat').value,
+
+          price:
+            Number(
+              $('pPrice').value
+            ),
+
+          stock:
+            Number(
+              $('pStock').value
+            ),
+
+          image:
+            $('pImage').value,
+
+          description:
+            $('pDesc').value
+
+        };
+
+
+        try {
+
+          if (editingId) {
+
+            await api(
+              '/products/' +
+                editingId,
+              'PUT',
+              body
+            );
+
+          } else {
+
+            await api(
+              '/products',
+              'POST',
+              body
+            );
+
+          }
+
+
+          $('productDialog')
+            .close();
+
+
+          toast(
+            'Product saved successfully'
+          );
+
+
+          loadProducts();
+
+          loadStats();
+
+
+        } catch (err) {
+
+          $('productErr')
+            .textContent =
+            err.message;
+
+        }
+
+      };
+
+
+    /* =========================
+       ORDERS
+       ========================= */
+
+    async function loadOrders() {
+
+      try {
+
+        const orders =
+          await api(
+            '/orders'
+          );
+
+
+        $('orderRows')
+          .innerHTML =
+          orders.length
+
+            ? orders
+                .map(
+                  order =>
+                    `
+                    <tr>
+
+                      <td>
+                        ${new Date(
+                          order.createdAt
+                        ).toLocaleDateString(
+                          'en-IN'
+                        )}
+                      </td>
+
+
+                      <td>
+
+                        ${esc(
+                          order.customer?.name
+                        )}
+
+                        <br>
+
+                        <small
+                          style="color:var(--mute)"
+                        >
+
+                          ${esc(
+                            order.customer?.phone
+                          )}
+
+                          <br>
+
+                          ${esc(
+                            order.customer?.address
+                          )}
+
+                        </small>
+
+                      </td>
+
+
+                      <td>
+
+                        ${
+                          (
+                            order.items ||
+                            []
+                          )
+                            .map(
+                              item =>
+                                `${esc(
+                                  item.name
+                                )} × ${
+                                  item.qty
+                                }`
+                            )
+                            .join(
+                              '<br>'
+                            )
+                        }
+
+                      </td>
+
+
+                      <td>
+                        ${money(
+                          order.total
+                        )}
+                      </td>
+
+
+                      <td>
+
+                        ${esc(
+                          String(
+                            order.paymentMethod ||
+                              ''
+                          ).toUpperCase()
+                        )}
+
+                        <br>
+
+                        <small
+                          style="color:var(--mute)"
+                        >
+
+                          ${esc(
+                            order.paymentStatus
+                          )}
+
+                        </small>
+
+                      </td>
+
+
+                      <td>
+
+                        <select
+                          data-order="${order.id}"
+                          aria-label="Order status"
+                        >
+
+                          ${
+                            STATUSES
+                              .map(
+                                status =>
+                                  `
+                                  <option
+                                    value="${status}"
+                                    ${
+                                      status ===
+                                      order.status
+                                        ? 'selected'
+                                        : ''
+                                    }
+                                  >
+                                    ${status}
+                                  </option>
+                                  `
+                              )
+                              .join('')
+                          }
+
+                        </select>
+
+                      </td>
+
+                    </tr>
+                    `
+                )
+                .join('')
+
+            : `
+              <tr>
+
+                <td
+                  colspan="6"
+                  class="empty"
+                >
+                  No orders yet.
+                  They will show up here
+                  once customers check out.
+                </td>
+
+              </tr>
+              `;
+
+      } catch (err) {
+
+        console.error(
+          'Orders error:',
+          err
+        );
+
+        toast(
+          err.message
+        );
+
+      }
+
+    }
+
+
+    /* =========================
+       ORDER STATUS
+       ========================= */
+
+    $('orderRows').onchange =
+      async e => {
+
+        if (
+          !e.target.dataset.order
+        ) {
+          return;
+        }
+
+
+        try {
+
+          await api(
+            '/orders/' +
+              e.target.dataset.order,
+            'PATCH',
+            {
+              status:
+                e.target.value
+            }
+          );
+
+
+          toast(
+            'Order updated'
+          );
+
+
+          loadStats();
+
+        } catch (err) {
+
+          toast(
+            err.message
+          );
+
+        }
+
+      };
+
+
+    /* =========================
+       START
+       ========================= */
+
+    function start() {
+
+      $('login')
+        .classList.add(
+          'hidden'
+        );
+
+      $('app')
+        .classList.remove(
+          'hidden'
+        );
+
+
+      $('who').textContent =
+        localStorage.getItem(
+          'sp_email'
+        ) || '';
+
+
+      show(
+        'dashboard'
+      );
+
+    }
+
+
+    /* =========================
+       AUTO LOGIN
+       ========================= */
+
+    if (token) {
+      start();
+    }
+
+  </script>
+
 </body>
+
 </html>

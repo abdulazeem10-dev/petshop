@@ -4,139 +4,739 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Log in or sign up | Star Pets</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Figtree:wght@400;500;700&display=swap" rel="stylesheet">
+
 <style>
-:root{--ink:#1c3557;--side:#1c3557;--gold:#2c8c86;--bg:#f7f4ec;--line:#dfe6e4;--mute:#5a7392;--bad:#d64545}
-*{box-sizing:border-box}
-body{margin:0;min-height:100vh;display:grid;grid-template-columns:1fr 1fr;font-family:'Figtree',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
-h1,.brand{font-family:'Fredoka',Georgia,serif}
-:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
-.hero{background:var(--side);color:#fff;padding:3rem;display:flex;flex-direction:column;justify-content:space-between}
-.brand{display:flex;align-items:center;gap:.6rem;font-size:1.5rem;color:#fff;text-decoration:none}
-.brand img{width:40px;height:40px;border-radius:9px}
-.hero h2{font-family:'Fredoka',serif;font-size:2.6rem;line-height:1.15;margin:0 0 1rem;max-width:14ch}
-.hero p{color:#d3deec;max-width:36ch;line-height:1.6;margin:0}
-.hero ul{list-style:none;padding:0;margin:2rem 0 0;color:#e6eef7;display:grid;gap:.6rem}
-.hero li::before{content:"★";color:#8fdcd3;margin-right:.6rem}
-.box{display:grid;place-items:center;padding:2rem}
-.card{width:min(400px,100%)}
-.tabs{display:grid;grid-template-columns:1fr 1fr;background:#e9efee;border-radius:10px;padding:4px;margin-bottom:1.6rem}
-.tabs button{border:0;background:none;padding:.6rem;border-radius:8px;font:inherit;font-weight:500;color:var(--mute);cursor:pointer}
-.tabs button[aria-selected=true]{background:#fff;color:var(--ink);font-weight:700;box-shadow:0 1px 3px rgba(28,53,87,.15)}
-h1{margin:0 0 .3rem;font-size:1.7rem}
-.sub{margin:0 0 1rem;color:var(--mute)}
-label{display:block;font-size:.88rem;color:var(--mute);margin:.9rem 0 .25rem}
-input{width:100%;padding:.7rem .8rem;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fff;color:var(--ink)}
-.pw{position:relative}.pw button{position:absolute;right:.4rem;top:50%;transform:translateY(-50%);border:0;background:none;color:var(--mute);cursor:pointer;font:inherit;padding:.3rem .5rem}
-.hint{font-size:.8rem;color:var(--mute);margin:.3rem 0 0}
-.err{color:var(--bad);min-height:1.3rem;margin:.8rem 0 0;font-size:.92rem}
-.go{width:100%;margin-top:.4rem;background:var(--gold);color:#fff;border:0;border-radius:10px;padding:.8rem;font:inherit;font-weight:700;cursor:pointer}
-.go:disabled{opacity:.6;cursor:wait}
-.alt{text-align:center;margin:1.2rem 0 0;font-size:.92rem;color:var(--mute)}
-.alt a{color:var(--ink)}
-.hidden{display:none!important}
-@media(max-width:820px){body{grid-template-columns:1fr}.hero{padding:1.5rem}.hero h2,.hero ul{display:none}}
+:root{
+  --ink:#1c3557;
+  --side:#1c3557;
+  --gold:#2c8c86;
+  --bg:#f7f4ec;
+  --line:#dfe6e4;
+  --mute:#5a7392;
+  --bad:#d64545
+}
+
+*{
+  box-sizing:border-box
+}
+
+body{
+  margin:0;
+  min-height:100vh;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  font-family:'Figtree',system-ui,sans-serif;
+  color:var(--ink);
+  background:var(--bg)
+}
+
+h1,.brand{
+  font-family:'Fredoka',Georgia,serif
+}
+
+:focus-visible{
+  outline:3px solid var(--gold);
+  outline-offset:2px
+}
+
+.hero{
+  background:var(--side);
+  color:#fff;
+  padding:3rem;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:.6rem;
+  font-size:1.5rem;
+  color:#fff;
+  text-decoration:none
+}
+
+.brand img{
+  width:40px;
+  height:40px;
+  border-radius:9px
+}
+
+.hero h2{
+  font-family:'Fredoka',serif;
+  font-size:2.6rem;
+  line-height:1.15;
+  margin:0 0 1rem;
+  max-width:14ch
+}
+
+.hero p{
+  color:#d3deec;
+  max-width:36ch;
+  line-height:1.6;
+  margin:0
+}
+
+.hero ul{
+  list-style:none;
+  padding:0;
+  margin:2rem 0 0;
+  color:#e6eef7;
+  display:grid;
+  gap:.6rem
+}
+
+.hero li::before{
+  content:"★";
+  color:#8fdcd3;
+  margin-right:.6rem
+}
+
+.box{
+  display:grid;
+  place-items:center;
+  padding:2rem
+}
+
+.card{
+  width:min(400px,100%)
+}
+
+.tabs{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  background:#e9efee;
+  border-radius:10px;
+  padding:4px;
+  margin-bottom:1.6rem
+}
+
+.tabs button{
+  border:0;
+  background:none;
+  padding:.6rem;
+  border-radius:8px;
+  font:inherit;
+  font-weight:500;
+  color:var(--mute);
+  cursor:pointer
+}
+
+.tabs button[aria-selected=true]{
+  background:#fff;
+  color:var(--ink);
+  font-weight:700;
+  box-shadow:0 1px 3px rgba(28,53,87,.15)
+}
+
+h1{
+  margin:0 0 .3rem;
+  font-size:1.7rem
+}
+
+.sub{
+  margin:0 0 1rem;
+  color:var(--mute)
+}
+
+label{
+  display:block;
+  font-size:.88rem;
+  color:var(--mute);
+  margin:.9rem 0 .25rem
+}
+
+input{
+  width:100%;
+  padding:.7rem .8rem;
+  border:1px solid var(--line);
+  border-radius:10px;
+  font:inherit;
+  background:#fff;
+  color:var(--ink)
+}
+
+.pw{
+  position:relative
+}
+
+.pw button{
+  position:absolute;
+  right:.4rem;
+  top:50%;
+  transform:translateY(-50%);
+  border:0;
+  background:none;
+  color:var(--mute);
+  cursor:pointer;
+  font:inherit;
+  padding:.3rem .5rem
+}
+
+.hint{
+  font-size:.8rem;
+  color:var(--mute);
+  margin:.3rem 0 0
+}
+
+.err{
+  color:var(--bad);
+  min-height:1.3rem;
+  margin:.8rem 0 0;
+  font-size:.92rem
+}
+
+.go{
+  width:100%;
+  margin-top:.4rem;
+  background:var(--gold);
+  color:#fff;
+  border:0;
+  border-radius:10px;
+  padding:.8rem;
+  font:inherit;
+  font-weight:700;
+  cursor:pointer
+}
+
+.go:disabled{
+  opacity:.6;
+  cursor:wait
+}
+
+.alt{
+  text-align:center;
+  margin:1.2rem 0 0;
+  font-size:.92rem;
+  color:var(--mute)
+}
+
+.alt a{
+  color:var(--ink)
+}
+
+.hidden{
+  display:none!important
+}
+
+@media(max-width:820px){
+  body{
+    grid-template-columns:1fr
+  }
+
+  .hero{
+    padding:1.5rem
+  }
+
+  .hero h2,
+  .hero ul{
+    display:none
+  }
+}
 </style>
 </head>
+
 <body>
+
 <section class="hero">
+
   <a class="brand" href="/">
     <img src="images/image1.jpg" alt="">
     Star Pets
   </a>
+
   <div>
     <h2>Good things for good pets</h2>
-    <p>Premium food and accessories for your dog or cat.</p>
-    <ul><li>Save your details for faster checkout</li><li>Track your orders in one place</li></ul>
+
+    <p>
+      Premium food and accessories for your dog or cat.
+    </p>
+
+    <ul>
+      <li>Save your details for faster checkout</li>
+      <li>Track your orders in one place</li>
+    </ul>
   </div>
-  <p style="font-size:.85rem">© Star Pets</p>
+
+  <p style="font-size:.85rem">
+    © Star Pets
+  </p>
+
 </section>
 
-<main class="box"><div class="card">
-  <div class="tabs" role="tablist">
-    <button role="tab" id="tabLogin" aria-selected="true">Log in</button>
-    <button role="tab" id="tabReg" aria-selected="false">Create account</button>
+
+<main class="box">
+
+  <div class="card">
+
+    <div class="tabs" role="tablist">
+
+      <button
+        role="tab"
+        id="tabLogin"
+        aria-selected="true">
+        Log in
+      </button>
+
+      <button
+        role="tab"
+        id="tabReg"
+        aria-selected="false">
+        Create account
+      </button>
+
+    </div>
+
+
+    <!-- LOGIN FORM -->
+
+    <form id="loginForm">
+
+      <h1>Welcome back</h1>
+
+      <p class="sub">
+        Log in to your Star Pets account.
+      </p>
+
+      <label for="lEmail">
+        Email
+      </label>
+
+      <input
+        id="lEmail"
+        type="email"
+        required
+        autocomplete="email">
+
+
+      <label for="lPass">
+        Password
+      </label>
+
+      <div class="pw">
+
+        <input
+          id="lPass"
+          type="password"
+          required
+          autocomplete="current-password">
+
+        <button
+          type="button"
+          data-show="lPass">
+          Show
+        </button>
+
+      </div>
+
+
+      <p
+        class="err"
+        id="lErr"
+        role="alert">
+      </p>
+
+
+      <button class="go">
+        Log in
+      </button>
+
+
+      <p class="alt">
+        New here?
+        <a href="#register" id="toReg">
+          Create an account
+        </a>
+      </p>
+
+    </form>
+
+
+    <!-- REGISTER FORM -->
+
+    <form id="regForm" class="hidden">
+
+      <h1>Create your account</h1>
+
+      <p class="sub">
+        It takes less than a minute.
+      </p>
+
+
+      <label for="rName">
+        Full name
+      </label>
+
+      <input
+        id="rName"
+        required
+        autocomplete="name">
+
+
+      <label for="rEmail">
+        Email
+      </label>
+
+      <input
+        id="rEmail"
+        type="email"
+        required
+        autocomplete="email">
+
+
+      <label for="rPhone">
+        Phone (optional)
+      </label>
+
+      <input
+        id="rPhone"
+        type="tel"
+        inputmode="numeric"
+        maxlength="10"
+        placeholder="10 digits"
+        autocomplete="tel">
+
+
+      <label for="rPass">
+        Password
+      </label>
+
+      <div class="pw">
+
+        <input
+          id="rPass"
+          type="password"
+          required
+          minlength="8"
+          autocomplete="new-password">
+
+        <button
+          type="button"
+          data-show="rPass">
+          Show
+        </button>
+
+      </div>
+
+
+      <p class="hint">
+        At least 8 characters.
+      </p>
+
+
+      <p
+        class="err"
+        id="rErr"
+        role="alert">
+      </p>
+
+
+      <button class="go">
+        Create account
+      </button>
+
+
+      <p class="alt">
+        Already have an account?
+        <a href="#login" id="toLogin">
+          Log in
+        </a>
+      </p>
+
+    </form>
+
   </div>
 
-  <form id="loginForm">
-    <h1>Welcome back</h1><p class="sub">Log in to your Star Pets account.</p>
-    <label for="lEmail">Email</label><input id="lEmail" type="email" required autocomplete="email">
-    <label for="lPass">Password</label>
-    <div class="pw"><input id="lPass" type="password" required autocomplete="current-password"><button type="button" data-show="lPass">Show</button></div>
-    <p class="err" id="lErr" role="alert"></p>
-    <button class="go">Log in</button>
-    <p class="alt">New here? <a href="#register" id="toReg">Create an account</a></p>
-  </form>
+</main>
 
-  <form id="regForm" class="hidden">
-    <h1>Create your account</h1><p class="sub">It takes less than a minute.</p>
-    <label for="rName">Full name</label><input id="rName" required autocomplete="name">
-    <label for="rEmail">Email</label><input id="rEmail" type="email" required autocomplete="email">
-    <label for="rPhone">Phone (optional)</label><input id="rPhone" type="tel" inputmode="numeric" maxlength="10" placeholder="10 digits" autocomplete="tel">
-    <label for="rPass">Password</label>
-    <div class="pw"><input id="rPass" type="password" required minlength="8" autocomplete="new-password"><button type="button" data-show="rPass">Show</button></div>
-    <p class="hint">At least 8 characters.</p>
-    <p class="err" id="rErr" role="alert"></p>
-    <button class="go">Create account</button>
-    <p class="alt">Already have an account? <a href="#login" id="toLogin">Log in</a></p>
-  </form>
-</div></main>
 
 <script>
+
 const $ = id => document.getElementById(id);
 
-// Only allow redirects to pages on this site
+
+/*
+  Star Pets Backend
+  AWS EC2 Node.js server
+*/
+const API_BASE = 'http://44.205.21.20:3000';
+
+
+/*
+  Only allow redirects to pages on this site
+*/
 function nextUrl() {
-  const n = new URLSearchParams(location.search).get('next') || '/';
-  return n.startsWith('/') && !n.startsWith('//') ? n : '/';
+
+  const n =
+    new URLSearchParams(location.search).get('next') || '/';
+
+  return n.startsWith('/') && !n.startsWith('//')
+    ? n
+    : '/';
 }
 
+
+/*
+  Login / Register tab
+*/
 function mode(m) {
+
   const reg = m === 'register';
-  $('loginForm').classList.toggle('hidden', reg);
-  $('regForm').classList.toggle('hidden', !reg);
-  $('tabLogin').setAttribute('aria-selected', !reg);
-  $('tabReg').setAttribute('aria-selected', reg);
-  history.replaceState(null, '', location.pathname + location.search + (reg ? '#register' : ''));
+
+  $('loginForm').classList.toggle(
+    'hidden',
+    reg
+  );
+
+  $('regForm').classList.toggle(
+    'hidden',
+    !reg
+  );
+
+  $('tabLogin').setAttribute(
+    'aria-selected',
+    !reg
+  );
+
+  $('tabReg').setAttribute(
+    'aria-selected',
+    reg
+  );
+
+  history.replaceState(
+    null,
+    '',
+    location.pathname +
+    location.search +
+    (reg ? '#register' : '')
+  );
 }
-$('tabLogin').onclick = $('toLogin').onclick = e => { e.preventDefault(); mode('login'); };
-$('tabReg').onclick = $('toReg').onclick = e => { e.preventDefault(); mode('register'); };
-mode(location.hash === '#register' ? 'register' : 'login');
 
-document.querySelectorAll('[data-show]').forEach(b => b.onclick = () => {
-  const i = $(b.dataset.show), show = i.type === 'password';
-  i.type = show ? 'text' : 'password';
-  b.textContent = show ? 'Hide' : 'Show';
-});
 
-async function submit(form, errEl, url, body) {
-  const btn = form.querySelector('.go');
-  errEl.textContent = ''; btn.disabled = true;
-  try {
-    const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.error || 'Something went wrong. Try again.');
-    localStorage.setItem('sp_user_token', data.token);
-    localStorage.setItem('sp_user', JSON.stringify(data.user));
-    location.href = nextUrl();
-  } catch (err) {
-    errEl.textContent = err.message; btn.disabled = false;
-  }
-}
+$('tabLogin').onclick =
+$('toLogin').onclick =
+e => {
 
-$('loginForm').onsubmit = e => {
   e.preventDefault();
-  submit(e.target, $('lErr'), '/api/auth/login', { email: $('lEmail').value, password: $('lPass').value });
+
+  mode('login');
+
 };
-$('regForm').onsubmit = e => {
+
+
+$('tabReg').onclick =
+$('toReg').onclick =
+e => {
+
   e.preventDefault();
-  submit(e.target, $('rErr'), '/api/auth/register', {
-    name: $('rName').value, email: $('rEmail').value, phone: $('rPhone').value, password: $('rPass').value,
+
+  mode('register');
+
+};
+
+
+mode(
+  location.hash === '#register'
+    ? 'register'
+    : 'login'
+);
+
+
+/*
+  Show / Hide password
+*/
+document
+  .querySelectorAll('[data-show]')
+  .forEach(b => {
+
+    b.onclick = () => {
+
+      const i = $(b.dataset.show);
+
+      const show =
+        i.type === 'password';
+
+      i.type =
+        show
+          ? 'text'
+          : 'password';
+
+      b.textContent =
+        show
+          ? 'Hide'
+          : 'Show';
+
+    };
+
   });
+
+
+/*
+  Submit login/register request
+*/
+async function submit(
+  form,
+  errEl,
+  url,
+  body
+) {
+
+  const btn =
+    form.querySelector('.go');
+
+  errEl.textContent = '';
+
+  btn.disabled = true;
+
+  try {
+
+    const res =
+      await fetch(
+        url,
+        {
+          method: 'POST',
+
+          headers: {
+            'Content-Type':
+              'application/json'
+          },
+
+          body:
+            JSON.stringify(body)
+        }
+      );
+
+
+    const data =
+      await res
+        .json()
+        .catch(() => ({}));
+
+
+    if (!res.ok) {
+
+      throw new Error(
+        data.error ||
+        'Something went wrong. Try again.'
+      );
+
+    }
+
+
+    localStorage.setItem(
+      'sp_user_token',
+      data.token
+    );
+
+
+    localStorage.setItem(
+      'sp_user',
+      JSON.stringify(data.user)
+    );
+
+
+    location.href =
+      nextUrl();
+
+
+  } catch (err) {
+
+    errEl.textContent =
+      err.message;
+
+    btn.disabled = false;
+
+  }
+
+}
+
+
+/*
+  LOGIN
+*/
+$('loginForm').onsubmit = e => {
+
+  e.preventDefault();
+
+  submit(
+
+    e.target,
+
+    $('lErr'),
+
+    API_BASE +
+      '/api/auth/login',
+
+    {
+      email:
+        $('lEmail').value,
+
+      password:
+        $('lPass').value
+    }
+
+  );
+
 };
 
-// Already logged in? Skip the form.
-if (localStorage.getItem('sp_user_token')) location.replace(nextUrl());
+
+/*
+  REGISTER
+*/
+$('regForm').onsubmit = e => {
+
+  e.preventDefault();
+
+  submit(
+
+    e.target,
+
+    $('rErr'),
+
+    API_BASE +
+      '/api/auth/register',
+
+    {
+
+      name:
+        $('rName').value,
+
+      email:
+        $('rEmail').value,
+
+      phone:
+        $('rPhone').value,
+
+      password:
+        $('rPass').value
+
+    }
+
+  );
+
+};
+
+
+/*
+  Already logged in?
+  Skip the form.
+*/
+if (
+  localStorage.getItem(
+    'sp_user_token'
+  )
+) {
+
+  location.replace(
+    nextUrl()
+  );
+
+}
+
 </script>
+
 </body>
 </html>
