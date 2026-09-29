@@ -2,24 +2,14 @@ version: 1
 
 frontend:
   phases:
-    preBuild:
-      commands:
-        - nvm use 22
-        - npm ci
-
     build:
       commands:
-        - rm -rf .amplify-hosting
-        - mkdir -p .amplify-hosting/compute/default
-        - mkdir -p .amplify-hosting/static
-        - cp server.js .amplify-hosting/compute/default/index.js
-        - cp models.js .amplify-hosting/compute/default/models.js
-        - cp -r node_modules .amplify-hosting/compute/default/node_modules
-        - cp -r public .amplify-hosting/compute/default/public
-        - cp -r public/. .amplify-hosting/static/
-        - cp deploy-manifest.json .amplify-hosting/deploy-manifest.json
+        - echo "Static frontend - no build required"
 
   artifacts:
-    baseDirectory: .amplify-hosting
+    baseDirectory: public
     files:
       - '**/*'
+
+  cache:
+    paths: []
