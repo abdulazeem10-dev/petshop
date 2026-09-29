@@ -1,21 +1,12 @@
 require('dotenv').config();
 
 const express = require('express');
-const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const path = require('path');
 
-const { Product, Order, Admin } = require('./models');
-
-// Customer accounts (used by login.html). Move this into models.js if you prefer.
-const { Schema, model, models } = mongoose;
-const User = models.User || model('User', new Schema({
-    name: { type: String, required: true, trim: true },
-    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-    phone: String,
-    passwordHash: { type: String, required: true }
-}, { timestamps: true }));
+const db = require('./db');
+const { Product, Order, Admin, User } = require('./models');
 
 const app = express();
 
@@ -25,7 +16,30 @@ const app = express();
 
 app.use(express.json({ limit: '100kb' }));
 
-// Serve frontend files from /public (admin panel lives at /admin)
+// CORS - required because Amplify frontend and EC2 backend
+// will be on different domains.
+app.use((req, res, next) => {
+    const origin = process.env.FRONTEND_URL || '*';
+
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header(
+        'Access-Control-Allow-Headers',
+        'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+    );
+    res.header(
+        'Access-Control-Allow-Methods',
+        'GET, POST, PUT, PATCH, DELETE, OPTIONS'
+    );
+
+    if (req.method === 'OPTIONS') {
+        return res.sendStatus(204);
+    }
+
+    next();
+});
+
+// Keep local frontend serving for testing.
+// Later Amplify will serve the frontend.
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', (req, res) => {
@@ -33,49 +47,25 @@ app.get('/', (req, res) => {
 });
 
 // ==================================================
-// MONGODB CONNECTION
+// DATABASE CONNECTION
 // ==================================================
 
-let mongoPromise = null;
+let dbReady = false;
 
-// Creates the first admin from ADMIN_EMAIL / ADMIN_PASSWORD if it doesn't exist yet
-async function seedAdmin() {
-    const { ADMIN_EMAIL, ADMIN_PASSWORD } = process.env;
-    if (!ADMIN_EMAIL || !ADMIN_PASSWORD) return;
-
-    const email = ADMIN_EMAIL.toLowerCase();
-
-    if (!(await Admin.findOne({ email }))) {
-        await Admin.create({
-            email,
-            passwordHash: await bcrypt.hash(ADMIN_PASSWORD, 10)
-        });
-        console.log('Admin user created:', email);
-    }
-}
-
-function connectDB() {
-    if (!process.env.MONGO_URI) {
-        throw new Error('MONGO_URI environment variable is missing');
+async function connectDB() {
+    if (dbReady) {
+        return;
     }
 
-    if (!mongoPromise) {
-        mongoPromise = mongoose
-            .connect(process.env.MONGO_URI)
-            .then(async () => {
-                console.log('MongoDB connected');
-                await seedAdmin().catch((e) =>
-                    console.error('Admin seed failed:', e.message)
-                );
-            })
-            .catch((error) => {
-                mongoPromise = null;
-                console.error('MongoDB connection failed:', error.message);
-                throw error;
-            });
-    }
+    const connection = await db.getConnection();
 
-    return mongoPromise;
+    try {
+        await connection.ping();
+        dbReady = true;
+        console.log('MySQL/RDS connected');
+    } finally {
+        connection.release();
+    }
 }
 
 // Connect database before API requests
@@ -85,7 +75,10 @@ app.use('/api', async (req, res, next) => {
         next();
     } catch (error) {
         console.error('Database connection failed:', error.message);
-        res.status(500).json({ error: 'Database connection failed' });
+
+        res.status(500).json({
+            error: 'Database connection failed'
+        });
     }
 });
 
@@ -95,16 +88,18 @@ app.use('/api', async (req, res, next) => {
 
 const wrap = (fn) => (req, res) => {
     Promise.resolve(fn(req, res)).catch((error) => {
-        if (error.name === 'ValidationError' || error.name === 'CastError') {
-            return res.status(400).json({ error: error.message });
-        }
-        if (error.code === 11000) {
+        console.error(error);
+
+        // MySQL duplicate entry
+        if (error.code === 'ER_DUP_ENTRY') {
             return res.status(409).json({
                 error: 'An account with this email already exists'
             });
         }
-        console.error(error);
-        res.status(500).json({ error: 'Something went wrong' });
+
+        res.status(500).json({
+            error: 'Something went wrong'
+        });
     });
 };
 
@@ -114,35 +109,69 @@ const wrap = (fn) => (req, res) => {
 
 const auth = (req, res, next) => {
     if (!process.env.JWT_SECRET) {
-        console.error('JWT_SECRET environment variable is missing');
         return res.status(500).json({
             error: 'Server authentication is not configured'
         });
     }
 
     try {
-        const token = (req.headers.authorization || '').replace('Bearer ', '');
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const token = (req.headers.authorization || '')
+            .replace('Bearer ', '')
+            .trim();
 
-        // Customer tokens must never open admin routes
-        if (decoded.role !== 'admin') throw new Error('Not an admin');
+        if (!token) {
+            throw new Error('Token missing');
+        }
+
+        const decoded = jwt.verify(
+            token,
+            process.env.JWT_SECRET
+        );
+
+        if (decoded.role !== 'admin') {
+            throw new Error('Not an admin');
+        }
 
         next();
+
     } catch (error) {
-        res.status(401).json({ error: 'Please log in again' });
+        return res.status(401).json({
+            error: 'Please log in again'
+        });
     }
 };
 
-// Customer auth
+
+// Customer authentication
 const userAuth = (req, res, next) => {
+    if (!process.env.JWT_SECRET) {
+        return res.status(500).json({
+            error: 'Server authentication is not configured'
+        });
+    }
+
     try {
-        const token = (req.headers.authorization || '').replace('Bearer ', '');
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        if (decoded.role !== 'user') throw new Error('Not a customer');
+        const token = (req.headers.authorization || '')
+            .replace('Bearer ', '')
+            .trim();
+
+        const decoded = jwt.verify(
+            token,
+            process.env.JWT_SECRET
+        );
+
+        if (decoded.role !== 'user') {
+            throw new Error('Not a customer');
+        }
+
         req.userId = decoded.id;
+
         next();
+
     } catch (error) {
-        res.status(401).json({ error: 'Please log in again' });
+        return res.status(401).json({
+            error: 'Please log in again'
+        });
     }
 };
 
@@ -151,22 +180,124 @@ const userAuth = (req, res, next) => {
 // ==================================================
 
 const pick = (body) => ({
-    name: body.name,
+    name: String(body.name || '').trim(),
     category: body.category,
     price: Number(body.price),
     stock: Number(body.stock),
-    description: body.description,
-    image: body.image
+    description: body.description || '',
+    image: body.image || ''
 });
 
 // ==================================================
-// STOREFRONT
+// RESPONSE FORMAT HELPERS
+// ==================================================
+
+function publicProduct(product) {
+    if (!product) {
+        return null;
+    }
+
+    return {
+        _id: product.id,
+        id: product.id,
+        name: product.name,
+        category: product.category,
+        price: Number(product.price),
+        stock: Number(product.stock),
+        description: product.description || '',
+        image: product.image || '',
+        createdAt: product.created_at,
+        updatedAt: product.updated_at
+    };
+}
+
+
+function publicOrder(order) {
+    if (!order) {
+        return null;
+    }
+
+    return {
+        _id: order.id,
+        id: order.id,
+
+        items: (order.items || []).map(item => ({
+            _id: item.id,
+            product: item.product_id,
+            product_id: item.product_id,
+            name: item.name,
+            price: Number(item.price),
+            qty: Number(item.qty)
+        })),
+
+        customer: {
+            name: order.customer_name,
+            phone: order.customer_phone,
+            address: order.customer_address
+        },
+
+        total: Number(order.total),
+
+        paymentMethod: order.payment_method,
+        paymentStatus: order.payment_status,
+
+        status: order.status,
+
+        createdAt: order.created_at,
+        updatedAt: order.updated_at
+    };
+}
+
+
+// ==================================================
+// ADMIN SEED
+// ==================================================
+
+async function seedAdmin() {
+    const email = String(process.env.ADMIN_EMAIL || '')
+        .trim()
+        .toLowerCase();
+
+    const password = String(process.env.ADMIN_PASSWORD || '');
+
+    if (!email || !password) {
+        console.log(
+            'ADMIN_EMAIL or ADMIN_PASSWORD not configured. Skipping admin seed.'
+        );
+
+        return;
+    }
+
+    const existing = await Admin.findByEmail(email);
+
+    if (!existing) {
+        const passwordHash = await bcrypt.hash(
+            password,
+            10
+        );
+
+        await Admin.create(
+            email,
+            passwordHash
+        );
+
+        console.log('Admin user created:', email);
+    }
+}
+
+// ==================================================
+// STOREFRONT PRODUCTS
 // ==================================================
 
 app.get(
     '/api/products',
     wrap(async (req, res) => {
-        res.json(await Product.find().sort('category name'));
+
+        const products = await Product.findAll();
+
+        res.json(
+            products.map(publicProduct)
+        );
     })
 );
 
@@ -177,9 +308,18 @@ app.get(
 app.post(
     '/api/orders',
     wrap(async (req, res) => {
-        const { items, customer, paymentMethod } = req.body;
 
-        const bad = (message) => res.status(400).json({ error: message });
+        const {
+            items,
+            customer,
+            paymentMethod
+        } = req.body;
+
+        const bad = (message) => {
+            return res.status(400).json({
+                error: message
+            });
+        };
 
         if (!Array.isArray(items) || !items.length) {
             return bad('Your cart is empty');
@@ -190,68 +330,164 @@ app.post(
             !/^\d{10}$/.test(customer.phone || '') ||
             !customer.address?.trim()
         ) {
-            return bad('Enter your name, a 10-digit phone number and your address');
+            return bad(
+                'Enter your name, a 10-digit phone number and your address'
+            );
         }
 
         if (!['cod', 'upi', 'card'].includes(paymentMethod)) {
             return bad('Choose a payment method');
         }
 
-        const done = [];
+        const connection = await db.getConnection();
 
-        // Put stock back if the order fails part-way
-        const rollback = () =>
-            Promise.all(
-                done.map((line) =>
-                    Product.updateOne(
-                        { _id: line.product },
-                        { $inc: { stock: line.qty } }
-                    )
+        try {
+
+            await connection.beginTransaction();
+
+            const done = [];
+
+            // ------------------------------------------
+            // CHECK AND REDUCE STOCK
+            // ------------------------------------------
+
+            for (const item of items) {
+
+                const qty = Math.floor(
+                    Number(item.qty)
+                );
+
+                if (!(qty >= 1)) {
+                    await connection.rollback();
+
+                    return bad(
+                        'An item in your cart is invalid'
+                    );
+                }
+
+                const [rows] = await connection.query(
+                    `SELECT *
+                     FROM products
+                     WHERE id = ?
+                     FOR UPDATE`,
+                    [item.id]
+                );
+
+                const product = rows[0];
+
+                if (!product) {
+                    await connection.rollback();
+
+                    return bad(
+                        'An item in your cart is no longer available'
+                    );
+                }
+
+                if (product.stock < qty) {
+                    await connection.rollback();
+
+                    return bad(
+                        `Not enough stock for ${product.name}`
+                    );
+                }
+
+                await connection.query(
+                    `UPDATE products
+                     SET stock = stock - ?
+                     WHERE id = ?`,
+                    [qty, product.id]
+                );
+
+                done.push({
+                    product: product.id,
+                    name: product.name,
+                    price: Number(product.price),
+                    qty
+                });
+            }
+
+            // ------------------------------------------
+            // CALCULATE TOTAL
+            // ------------------------------------------
+
+            const total = done.reduce(
+                (sum, line) =>
+                    sum + line.price * line.qty,
+                0
+            );
+
+            // ------------------------------------------
+            // CREATE ORDER
+            // ------------------------------------------
+
+            const [orderResult] = await connection.query(
+                `INSERT INTO orders
+                (
+                    customer_name,
+                    customer_phone,
+                    customer_address,
+                    total,
+                    payment_method,
+                    payment_status,
+                    status
                 )
+                VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                [
+                    customer.name.trim(),
+                    customer.phone,
+                    customer.address.trim(),
+                    total,
+                    paymentMethod,
+                    'pending',
+                    'placed'
+                ]
             );
 
-        for (const item of items) {
-            const qty = Math.floor(Number(item.qty));
+            const orderId = orderResult.insertId;
 
-            const product = await Product.findById(item.id).catch(() => null);
+            // ------------------------------------------
+            // CREATE ORDER ITEMS
+            // ------------------------------------------
 
-            if (!product || !(qty >= 1)) {
-                await rollback();
-                return bad('An item in your cart is no longer available');
+            for (const item of done) {
+
+                await connection.query(
+                    `INSERT INTO order_items
+                    (
+                        order_id,
+                        product_id,
+                        name,
+                        price,
+                        qty
+                    )
+                    VALUES (?, ?, ?, ?, ?)`,
+                    [
+                        orderId,
+                        item.product,
+                        item.name,
+                        item.price,
+                        item.qty
+                    ]
+                );
             }
 
-            const result = await Product.updateOne(
-                { _id: product._id, stock: { $gte: qty } },
-                { $inc: { stock: -qty } }
-            );
+            await connection.commit();
 
-            if (!result.modifiedCount) {
-                await rollback();
-                return bad(`Not enough stock for ${product.name}`);
-            }
-
-            done.push({
-                product: product._id,
-                name: product.name,
-                price: product.price,
-                qty
+            res.status(201).json({
+                orderId,
+                total
             });
+
+        } catch (error) {
+
+            await connection.rollback();
+
+            throw error;
+
+        } finally {
+
+            connection.release();
         }
-
-        const total = done.reduce((sum, line) => sum + line.price * line.qty, 0);
-
-        const order = await Order.create({
-            items: done,
-            customer: {
-                name: customer.name.trim(),
-                phone: customer.phone,
-                address: customer.address.trim()
-            },
-            total,
-            paymentMethod
-        });
-
-        res.status(201).json({ orderId: order._id, total });
     })
 );
 
@@ -262,18 +498,33 @@ app.post(
 app.post(
     '/api/orders/:id/pay',
     wrap(async (req, res) => {
-        const order = await Order.findById(req.params.id);
+
+        const order = await Order.findById(
+            req.params.id
+        );
 
         if (!order) {
-            return res.status(404).json({ error: 'Order not found' });
+            return res.status(404).json({
+                error: 'Order not found'
+            });
         }
 
-        if (order.paymentMethod !== 'cod') {
-            order.paymentStatus = 'paid';
-            await order.save();
+        if (order.payment_method !== 'cod') {
+
+            const updated = await Order.markPaid(
+                req.params.id
+            );
+
+            return res.json({
+                orderId: updated.id,
+                paymentStatus: updated.payment_status
+            });
         }
 
-        res.json({ orderId: order._id, paymentStatus: order.paymentStatus });
+        res.json({
+            orderId: order.id,
+            paymentStatus: order.payment_status
+        });
     })
 );
 
@@ -281,80 +532,188 @@ app.post(
 // CUSTOMER ACCOUNTS
 // ==================================================
 
-const userToken = (user) =>
-    jwt.sign({ id: user._id, role: 'user' }, process.env.JWT_SECRET, {
-        expiresIn: '30d'
-    });
+const userToken = (user) => {
 
-const publicUser = (u) => ({
-    name: u.name,
-    email: u.email,
-    phone: u.phone || ''
+    return jwt.sign(
+        {
+            id: user.id,
+            role: 'user'
+        },
+        process.env.JWT_SECRET,
+        {
+            expiresIn: '30d'
+        }
+    );
+};
+
+
+const publicUser = (user) => ({
+    name: user.name,
+    email: user.email,
+    phone: user.phone || ''
 });
+
+
+// ==================================================
+// REGISTER
+// ==================================================
 
 app.post(
     '/api/auth/register',
     wrap(async (req, res) => {
+
         if (!process.env.JWT_SECRET) {
-            return res.status(500).json({ error: 'Server authentication is not configured' });
+            return res.status(500).json({
+                error: 'Server authentication is not configured'
+            });
         }
 
-        const name = String(req.body.name || '').trim();
-        const email = String(req.body.email || '').trim().toLowerCase();
-        const phone = String(req.body.phone || '').trim();
-        const password = String(req.body.password || '');
+        const name = String(
+            req.body.name || ''
+        ).trim();
 
-        const bad = (message) => res.status(400).json({ error: message });
+        const email = String(
+            req.body.email || ''
+        ).trim().toLowerCase();
 
-        if (!name) return bad('Enter your name');
-        if (!/^\S+@\S+\.\S+$/.test(email)) return bad('Enter a valid email address');
-        if (phone && !/^\d{10}$/.test(phone)) return bad('Phone number must be 10 digits');
-        if (password.length < 8) return bad('Password must be at least 8 characters');
+        const phone = String(
+            req.body.phone || ''
+        ).trim();
 
-        if (await User.findOne({ email })) {
-            return res.status(409).json({ error: 'An account with this email already exists' });
+        const password = String(
+            req.body.password || ''
+        );
+
+        const bad = (message) => {
+            return res.status(400).json({
+                error: message
+            });
+        };
+
+        if (!name) {
+            return bad('Enter your name');
         }
+
+        if (!/^\S+@\S+\.\S+$/.test(email)) {
+            return bad(
+                'Enter a valid email address'
+            );
+        }
+
+        if (
+            phone &&
+            !/^\d{10}$/.test(phone)
+        ) {
+            return bad(
+                'Phone number must be 10 digits'
+            );
+        }
+
+        if (password.length < 8) {
+            return bad(
+                'Password must be at least 8 characters'
+            );
+        }
+
+        const existing = await User.findByEmail(
+            email
+        );
+
+        if (existing) {
+            return res.status(409).json({
+                error:
+                    'An account with this email already exists'
+            });
+        }
+
+        const passwordHash = await bcrypt.hash(
+            password,
+            10
+        );
 
         const user = await User.create({
             name,
             email,
-            phone: phone || undefined,
-            passwordHash: await bcrypt.hash(password, 10)
+            phone,
+            passwordHash
         });
 
-        res.status(201).json({ token: userToken(user), user: publicUser(user) });
+        res.status(201).json({
+            token: userToken(user),
+            user: publicUser(user)
+        });
     })
 );
+
+// ==================================================
+// LOGIN
+// ==================================================
 
 app.post(
     '/api/auth/login',
     wrap(async (req, res) => {
+
         if (!process.env.JWT_SECRET) {
-            return res.status(500).json({ error: 'Server authentication is not configured' });
+            return res.status(500).json({
+                error:
+                    'Server authentication is not configured'
+            });
         }
 
-        const user = await User.findOne({
-            email: String(req.body.email || '').trim().toLowerCase()
-        });
+        const email = String(
+            req.body.email || ''
+        ).trim().toLowerCase();
+
+        const password = String(
+            req.body.password || ''
+        );
+
+        const user = await User.findByEmail(
+            email
+        );
 
         if (
             !user ||
-            !(await bcrypt.compare(String(req.body.password || ''), user.passwordHash))
+            !(await bcrypt.compare(
+                password,
+                user.password_hash
+            ))
         ) {
-            return res.status(401).json({ error: 'Email or password is incorrect' });
+            return res.status(401).json({
+                error:
+                    'Email or password is incorrect'
+            });
         }
 
-        res.json({ token: userToken(user), user: publicUser(user) });
+        res.json({
+            token: userToken(user),
+            user: publicUser(user)
+        });
     })
 );
+
+// ==================================================
+// CURRENT USER
+// ==================================================
 
 app.get(
     '/api/auth/me',
     userAuth,
     wrap(async (req, res) => {
-        const user = await User.findById(req.userId);
-        if (!user) return res.status(401).json({ error: 'Please log in again' });
-        res.json(publicUser(user));
+
+        const user = await User.findById(
+            req.userId
+        );
+
+        if (!user) {
+            return res.status(401).json({
+                error: 'Please log in again'
+            });
+        }
+
+        res.json(
+            publicUser(user)
+        );
     })
 );
 
@@ -365,30 +724,54 @@ app.get(
 app.post(
     '/api/admin/login',
     wrap(async (req, res) => {
+
         if (!process.env.JWT_SECRET) {
             return res.status(500).json({
-                error: 'Server authentication is not configured'
+                error:
+                    'Server authentication is not configured'
             });
         }
 
-        const email = String(req.body.email || '').toLowerCase();
+        const email = String(
+            req.body.email || ''
+        ).trim().toLowerCase();
 
-        const admin = await Admin.findOne({ email });
+        const password = String(
+            req.body.password || ''
+        );
+
+        const admin = await Admin.findByEmail(
+            email
+        );
 
         if (
             !admin ||
-            !(await bcrypt.compare(String(req.body.password || ''), admin.passwordHash))
+            !(await bcrypt.compare(
+                password,
+                admin.password_hash
+            ))
         ) {
             return res.status(401).json({
-                error: 'Email or password is incorrect'
+                error:
+                    'Email or password is incorrect'
             });
         }
 
-        const token = jwt.sign({ id: admin._id, role: 'admin' }, process.env.JWT_SECRET, {
-            expiresIn: '8h'
-        });
+        const token = jwt.sign(
+            {
+                id: admin.id,
+                role: 'admin'
+            },
+            process.env.JWT_SECRET,
+            {
+                expiresIn: '8h'
+            }
+        );
 
-        res.json({ token, email });
+        res.json({
+            token,
+            email
+        });
     })
 );
 
@@ -400,26 +783,62 @@ app.get(
     '/api/admin/stats',
     auth,
     wrap(async (req, res) => {
-        const [products, orders, pending, revenue, lowStock] = await Promise.all([
-            Product.countDocuments(),
-            Order.countDocuments(),
-            Order.countDocuments({ status: 'pending' }),
-            // Revenue = all orders except cancelled ones
-            Order.aggregate([
-                { $match: { status: { $ne: 'cancelled' } } },
-                { $group: { _id: null, sum: { $sum: '$total' } } }
-            ]),
-            Product.find({ stock: { $lte: 5 } })
-                .select('name stock')
-                .sort('stock')
-                .limit(10)
+
+        const [
+            [productCount],
+            [orderCount],
+            [pendingCount],
+            [revenueRows],
+            [lowStock]
+        ] = await Promise.all([
+
+            db.query(
+                `SELECT COUNT(*) AS count
+                 FROM products`
+            ),
+
+            db.query(
+                `SELECT COUNT(*) AS count
+                 FROM orders`
+            ),
+
+            // "Placed" is the initial pending-work state
+            // in our MySQL order status enum.
+            db.query(
+                `SELECT COUNT(*) AS count
+                 FROM orders
+                 WHERE status = 'placed'`
+            ),
+
+            db.query(
+                `SELECT COALESCE(
+                    SUM(
+                        CASE
+                            WHEN status != 'cancelled'
+                            THEN total
+                            ELSE 0
+                        END
+                    ), 0
+                 ) AS revenue
+                 FROM orders`
+            ),
+
+            db.query(
+                `SELECT id, name, stock
+                 FROM products
+                 WHERE stock <= 5
+                 ORDER BY stock ASC
+                 LIMIT 10`
+            )
         ]);
 
         res.json({
-            products,
-            orders,
-            pending,
-            revenue: revenue[0]?.sum || 0,
+            products: productCount[0].count,
+            orders: orderCount[0].count,
+            pending: pendingCount[0].count,
+            revenue: Number(
+                revenueRows[0].revenue
+            ),
             lowStock
         });
     })
@@ -433,23 +852,55 @@ app.get(
     '/api/admin/orders',
     auth,
     wrap(async (req, res) => {
-        res.json(await Order.find().sort('-createdAt').limit(200));
+
+        const orders = await Order.findAll();
+
+        res.json(
+            orders.map(publicOrder)
+        );
     })
 );
+
+
+// ==================================================
+// UPDATE ORDER STATUS
+// ==================================================
 
 app.patch(
     '/api/admin/orders/:id',
     auth,
     wrap(async (req, res) => {
-        const order = await Order.findByIdAndUpdate(
+
+        const allowedStatuses = [
+            'placed',
+            'packed',
+            'shipped',
+            'delivered',
+            'cancelled'
+        ];
+
+        const status = req.body.status;
+
+        if (!allowedStatuses.includes(status)) {
+            return res.status(400).json({
+                error: 'Invalid order status'
+            });
+        }
+
+        const order = await Order.updateStatus(
             req.params.id,
-            { status: req.body.status },
-            { new: true, runValidators: true }
+            status
         );
 
-        if (!order) return res.status(404).json({ error: 'Order not found' });
+        if (!order) {
+            return res.status(404).json({
+                error: 'Order not found'
+            });
+        }
 
-        res.json(order);
+        res.json(
+            publicOrder(order)
+        );
     })
 );
 
@@ -461,64 +912,177 @@ app.get(
     '/api/admin/products',
     auth,
     wrap(async (req, res) => {
-        res.json(await Product.find().sort('-createdAt'));
+
+        const products = await Product.findAll();
+
+        products.sort(
+            (a, b) =>
+                new Date(b.created_at) -
+                new Date(a.created_at)
+        );
+
+        res.json(
+            products.map(publicProduct)
+        );
     })
 );
+
+
+// ==================================================
+// CREATE PRODUCT
+// ==================================================
 
 app.post(
     '/api/admin/products',
     auth,
     wrap(async (req, res) => {
-        res.status(201).json(await Product.create(pick(req.body)));
+
+        const data = pick(req.body);
+
+        if (!data.name) {
+            return res.status(400).json({
+                error: 'Product name is required'
+            });
+        }
+
+        if (
+            !['Dog', 'Cat', 'Accessories']
+                .includes(data.category)
+        ) {
+            return res.status(400).json({
+                error: 'Invalid product category'
+            });
+        }
+
+        if (
+            !Number.isFinite(data.price) ||
+            data.price < 0
+        ) {
+            return res.status(400).json({
+                error: 'Invalid product price'
+            });
+        }
+
+        if (
+            !Number.isInteger(data.stock) ||
+            data.stock < 0
+        ) {
+            return res.status(400).json({
+                error: 'Invalid product stock'
+            });
+        }
+
+        const product = await Product.create(
+            data
+        );
+
+        res.status(201).json(
+            publicProduct(product)
+        );
     })
 );
+
+
+// ==================================================
+// UPDATE PRODUCT
+// ==================================================
 
 app.put(
     '/api/admin/products/:id',
     auth,
     wrap(async (req, res) => {
-        const product = await Product.findByIdAndUpdate(
+
+        const data = pick(req.body);
+
+        if (!data.name) {
+            return res.status(400).json({
+                error: 'Product name is required'
+            });
+        }
+
+        if (
+            !['Dog', 'Cat', 'Accessories']
+                .includes(data.category)
+        ) {
+            return res.status(400).json({
+                error: 'Invalid product category'
+            });
+        }
+
+        const product = await Product.update(
             req.params.id,
-            pick(req.body),
-            { new: true, runValidators: true }
+            data
         );
 
-        if (!product) return res.status(404).json({ error: 'Product not found' });
+        if (!product) {
+            return res.status(404).json({
+                error: 'Product not found'
+            });
+        }
 
-        res.json(product);
+        res.json(
+            publicProduct(product)
+        );
     })
 );
+
+
+// ==================================================
+// DELETE PRODUCT
+// ==================================================
 
 app.delete(
     '/api/admin/products/:id',
     auth,
     wrap(async (req, res) => {
-        await Product.findByIdAndDelete(req.params.id);
-        res.json({ ok: true });
+
+        await Product.delete(
+            req.params.id
+        );
+
+        res.json({
+            ok: true
+        });
     })
 );
 
 // ==================================================
-// VERCEL EXPORT
+// EXPORT
 // ==================================================
 
 module.exports = app;
 
 // ==================================================
-// LOCAL SERVER
+// START SERVER
 // ==================================================
 
 if (require.main === module) {
-    const PORT = process.env.PORT || 3000;
+
+    const PORT =
+        process.env.PORT || 3000;
 
     connectDB()
-        .then(() => {
-            app.listen(PORT, () => {
-                console.log(`Star Pets running at http://localhost:${PORT}`);
-            });
+        .then(async () => {
+
+            await seedAdmin();
+
+            app.listen(
+                PORT,
+                '0.0.0.0',
+                () => {
+                    console.log(
+                        `Star Pets backend running on port ${PORT}`
+                    );
+                }
+            );
         })
-        .catch((error) => {
-            console.error('MongoDB connection failed:', error.message);
+        .catch(error => {
+
+            console.error(
+                'MySQL connection failed:',
+                error.message
+            );
+
             process.exit(1);
         });
 }

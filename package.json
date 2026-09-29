@@ -1,1 +1,1 @@
-{"name":"star-pets","version":"1.0.0","main":"server.js","scripts":{"start":"node server.js","seed":"node seed.js"},"dependencies":{"bcryptjs":"^2.4.3","dotenv":"^16.6.1","express":"^4.19.2","jsonwebtoken":"^9.0.2","mongoose":"^8.5.0"}}
+{"name":"star-pets","version":"1.0.0","main":"server.js","scripts":{"start":"node server.js","seed":"node seed.js"},"dependencies":{"bcryptjs":"^2.4.3","cors":"^2.8.6","dotenv":"^16.6.1","express":"^4.19.2","jsonwebtoken":"^9.0.2","mongoose":"^8.5.0","mysql2":"^3.24.4"}}
